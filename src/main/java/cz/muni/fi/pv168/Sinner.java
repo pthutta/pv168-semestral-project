@@ -12,7 +12,7 @@ public class Sinner {
     private String lastName = null;
     private String reason = null;
     private LocalDate releaseDate;
-    private boolean signedConstractWithDevil;
+    private boolean signedContractWithDevil;
 
     public Sinner() {
     }
@@ -57,11 +57,11 @@ public class Sinner {
         this.reason = reason;
     }
 
-    public boolean isSignedConstractWithDevil() {
-        return signedConstractWithDevil;
+    public boolean isSignedContractWithDevil() {
+        return signedContractWithDevil;
     }
 
-    public void setSignedConstractWithDevil(boolean signedConstractWithDevil) {
-        this.signedConstractWithDevil = signedConstractWithDevil;
+    public void setSignedContractWithDevil(boolean signedContractWithDevil) {
+        this.signedContractWithDevil = signedContractWithDevil;
     }
 }
