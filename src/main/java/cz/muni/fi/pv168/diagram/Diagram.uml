@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="593.0" y="172.0">cz.muni.fi.pv168.Sinner</node>
+    <node x="306.0" y="1.0">cz.muni.fi.pv168.HellManager</node>
+    <node x="541.0" y="359.0">cz.muni.fi.pv168.SinnerManager</node>
+    <node x="160.0" y="363.0">cz.muni.fi.pv168.PunishmentManager</node>
+    <node x="-39.0" y="179.0">cz.muni.fi.pv168.PunishmentType</node>
+    <node x="222.0" y="164.0">cz.muni.fi.pv168.Punishment</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="cz.muni.fi.pv168.HellManager" target="cz.muni.fi.pv168.Punishment">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="cz.muni.fi.pv168.Punishment" target="cz.muni.fi.pv168.PunishmentType">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="cz.muni.fi.pv168.HellManager" target="cz.muni.fi.pv168.Sinner">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="cz.muni.fi.pv168.PunishmentManager" target="cz.muni.fi.pv168.Punishment">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="cz.muni.fi.pv168.SinnerManager" target="cz.muni.fi.pv168.Sinner">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="393.5" y="260.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Inner Classes</Category>
+    <Category>Constructors</Category>
+    <Category>Properties</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
