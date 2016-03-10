@@ -1,0 +1,11 @@
+<application>
+  <component name="UmlConfiguration">
+    <option name="layout" value="ORGANIC" />
+    <option name="relayoutOnNewElements" value="false" />
+    <option name="categories">
+      <map>
+        <entry id="JAVA" categories="Fields;Constructors;Methods;Properties;Inner Classes;Show Usages;Show Cyclic" />
+      </map>
+    </option>
+  </component>
+</application>
