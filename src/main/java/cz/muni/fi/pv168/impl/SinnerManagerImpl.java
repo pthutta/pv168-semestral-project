@@ -6,12 +6,14 @@ import cz.muni.fi.pv168.SinnerManager;
 import java.util.List;
 
 /**
+ * Implementation of sinner manager. Keeps data in memory.
+ *
  * @author Peter Hutta
  * @version 1.0  10.3.2016
  */
 public class SinnerManagerImpl implements SinnerManager {
-    public void createSinner(Sinner sinner) {
-
+    public Sinner createSinner(Sinner sinner) {
+        return null;
     }
 
     public void updateSinner(Sinner sinner) {
@@ -19,7 +21,9 @@ public class SinnerManagerImpl implements SinnerManager {
     }
 
     public void deleteSinner(Sinner sinner) {
-
+        if (sinner == null) {
+            throw new IllegalArgumentException("null");
+        }
     }
 
     public Sinner findSinnerById(Long id) {
