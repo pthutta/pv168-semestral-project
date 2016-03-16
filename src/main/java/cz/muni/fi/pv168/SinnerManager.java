@@ -18,7 +18,7 @@ public interface SinnerManager {
      * @throws IllegalArgumentException When sinner is null or when sinner already has id.
      * @throws
      */
-    Sinner createSinner(Sinner sinner);
+    void createSinner(Sinner sinner);
 
     /**
      * Updates sinner in database.

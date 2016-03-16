@@ -12,8 +12,8 @@ import java.util.List;
  * @version 1.0  10.3.2016
  */
 public class SinnerManagerImpl implements SinnerManager {
-    public Sinner createSinner(Sinner sinner) {
-        return null;
+    public void createSinner(Sinner sinner) {
+
     }
 
     public void updateSinner(Sinner sinner) {
