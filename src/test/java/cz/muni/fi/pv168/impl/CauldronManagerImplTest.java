@@ -160,7 +160,7 @@ public class CauldronManagerImplTest {
             cauldron1 = manager.findCauldronById(cauldron1Id);
             cauldron1.setId(null);
             manager.updateCauldron(cauldron1);
-            fail("null parameter for setId not detected");
+            fail("setId with null parameter not detected");
         } catch (IllegalArgumentException ex) {
             //OK
         }
