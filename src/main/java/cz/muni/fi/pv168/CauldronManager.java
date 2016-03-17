@@ -7,6 +7,7 @@ import java.util.List;
  * @version 1.0  26.2.2016
  */
 public interface CauldronManager {
+    
     void createCauldron(Cauldron cauldron);
 
     void updateCauldron(Cauldron cauldron);
