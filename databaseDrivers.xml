@@ -9,6 +9,15 @@
     </driver>
     <driver id="derby.embedded" name="Derby (Embedded)" dialect="Derby">
       <option name="auto-sync" value="true" />
+      <library>
+        <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/derby-license.txt</url>
+      </library>
+      <library>
+        <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/derbyclient-10.11.1.1.jar</url>
+      </library>
+      <library>
+        <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/derby-10.11.1.1.jar</url>
+      </library>
     </driver>
     <driver id="sybase.jtds" name="Sybase (jTds)" dialect="Sybase">
       <option name="auto-sync" value="true" />
@@ -21,6 +30,15 @@
     </driver>
     <driver id="derby.remote" name="Derby (Remote)" dialect="Derby">
       <option name="auto-sync" value="true" />
+      <library>
+        <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/derby-license.txt</url>
+      </library>
+      <library>
+        <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/derbyclient-10.11.1.1.jar</url>
+      </library>
+      <library>
+        <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/derby-10.11.1.1.jar</url>
+      </library>
     </driver>
     <driver id="sqlite.xerial" name="Sqlite (Xerial)" dialect="SQLite">
       <option name="auto-sync" value="true" />
