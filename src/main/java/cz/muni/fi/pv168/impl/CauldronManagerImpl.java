@@ -149,6 +149,10 @@ public class CauldronManagerImpl implements CauldronManager {
 
     public Cauldron findCauldronById(Long id) {
 
+        if (id == null) {
+            throw new IllegalArgumentException("Id is null");
+        }
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement st = connection.prepareStatement(
                      "SELECT id,capacity,waterTemperature,hellFloor FROM cauldron WHERE id = ?")) {
@@ -164,7 +168,7 @@ public class CauldronManagerImpl implements CauldronManager {
                                 + "(source id: " + id + ", found " + cauldron + " and " + resultSetToCauldron(rs));
                     }
                     return cauldron;
-                    
+
                 } else {
                     return null;
                 }
