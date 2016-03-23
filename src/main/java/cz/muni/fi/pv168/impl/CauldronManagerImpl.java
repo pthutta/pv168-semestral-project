@@ -59,7 +59,7 @@ public class CauldronManagerImpl implements CauldronManager {
         cauldron.setId(rs.getLong("id"));
         cauldron.setCapacity(rs.getInt("capacity"));
         cauldron.setWaterTemperature(rs.getInt("waterTemperature"));
-        cauldron.setHellFloor(rs.getInt("waterTemperature"));
+        cauldron.setHellFloor(rs.getInt("hellFloor"));
         return cauldron;
     }
 
@@ -74,8 +74,8 @@ public class CauldronManagerImpl implements CauldronManager {
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement st = connection.prepareStatement(
-                        "INSERT INTO CAULDRON (capacity,waterTemperature,hellFloor) VALUES (?,?,?)",
-                        Statement.RETURN_GENERATED_KEYS)) {
+                     "INSERT INTO CAULDRON (capacity,waterTemperature,hellFloor) VALUES (?,?,?)",
+                     Statement.RETURN_GENERATED_KEYS)) {
 
             st.setInt(1, cauldron.getCapacity());
             st.setInt(2, cauldron.getWaterTemperature());
@@ -101,10 +101,9 @@ public class CauldronManagerImpl implements CauldronManager {
         if (cauldron.getId() == null) {
             throw new IllegalArgumentException("Cauldron id is null");
         }
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement(
-                        "UPDATE Cauldron SET capacity = ?, waterTemperature = ?, hellFloor = ? WHERE id = ?")) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "UPDATE CAULDRON SET capacity = ?, waterTemperature = ?, hellFloor = ? WHERE id = ?")) {
 
             st.setInt(1, cauldron.getCapacity());
             st.setInt(2, cauldron.getWaterTemperature());
@@ -118,8 +117,7 @@ public class CauldronManagerImpl implements CauldronManager {
                 throw new ServiceFailureException("Invalid updated rows count detected (one row should be updated): " + count);
             }
         } catch (SQLException ex) {
-            throw new ServiceFailureException(
-                    "Error when updating cauldron " + cauldron, ex);
+            throw new ServiceFailureException("Error when updating cauldron " + cauldron, ex);
         }
     }
 
@@ -131,10 +129,9 @@ public class CauldronManagerImpl implements CauldronManager {
         if (cauldron.getId() == null) {
             throw new IllegalArgumentException("cauldron id is null");
         }
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement(
-                        "DELETE FROM cauldron WHERE id = ?")) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "DELETE FROM CAULDRON WHERE id = ?")) {
 
             st.setLong(1, cauldron.getId());
 
@@ -152,47 +149,43 @@ public class CauldronManagerImpl implements CauldronManager {
 
     public Cauldron findCauldronById(Long id) {
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement(
-                        "SELECT id,capacity,waterTemperature,hellFloor FROM cauldron WHERE id = ?")) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT id,capacity,waterTemperature,hellFloor FROM cauldron WHERE id = ?")) {
 
             st.setLong(1, id);
-            ResultSet rs = st.executeQuery();
 
-            if (rs.next()) {
-                Cauldron cauldron = resultSetToCauldron(rs);
-
+            try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
-                    throw new ServiceFailureException(
-                            "Internal error: More entities with the same id found "
-                                    + "(source id: " + id + ", found " + cauldron + " and " + resultSetToCauldron(rs));
+                    Cauldron cauldron = resultSetToCauldron(rs);
+
+                    if (rs.next()) {
+                        throw new ServiceFailureException("Internal error: More entities with the same id found "
+                                + "(source id: " + id + ", found " + cauldron + " and " + resultSetToCauldron(rs));
+                    }
+                    return cauldron;
+                    
+                } else {
+                    return null;
                 }
-
-                return cauldron;
-            } else {
-                return null;
             }
-
         } catch (SQLException ex) {
-            throw new ServiceFailureException(
-                    "Error when retrieving grave with id " + id, ex);
+            throw new ServiceFailureException("Error when retrieving grave with id " + id, ex);
         }
     }
 
     public List<Cauldron> findAllCauldrons() {
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement(
-                        "SELECT id,capacity, waterTemperature, hellFloor FROM cauldron")) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
+                     "SELECT id,capacity, waterTemperature, hellFloor FROM cauldron")) {
 
-            ResultSet rs = st.executeQuery();
-
-            List<Cauldron> result = new ArrayList<>();
-            while (rs.next()) {
-                result.add(resultSetToCauldron(rs));
+            try (ResultSet rs = st.executeQuery()) {
+                List<Cauldron> result = new ArrayList<>();
+                while (rs.next()) {
+                    result.add(resultSetToCauldron(rs));
+                }
+                return result;
             }
-            return result;
 
         } catch (SQLException ex) {
             throw new ServiceFailureException(

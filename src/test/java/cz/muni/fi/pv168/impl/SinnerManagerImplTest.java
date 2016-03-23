@@ -33,8 +33,7 @@ public class SinnerManagerImplTest {
 
     @Test
     public void testCreateSinner() throws Exception {
-        Sinner sinner = newSinner("John", "Doe", "killed five babies",
-                LocalDate.of(2125, 12, 27), false);
+        Sinner sinner = newSinner("John", "Doe", "killed five babies", LocalDate.of(2125, 12, 27), false);
         manager.createSinner(sinner);
 
         Long sinnerId = sinner.getId();
