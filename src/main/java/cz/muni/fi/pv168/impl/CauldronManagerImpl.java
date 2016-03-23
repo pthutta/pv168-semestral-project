@@ -72,9 +72,8 @@ public class CauldronManagerImpl implements CauldronManager {
             throw new IllegalArgumentException("cauldron id is already set");
         }
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement st = connection.prepareStatement(
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement st = connection.prepareStatement(
                         "INSERT INTO CAULDRON (capacity,waterTemperature,hellFloor) VALUES (?,?,?)",
                         Statement.RETURN_GENERATED_KEYS)) {
 
