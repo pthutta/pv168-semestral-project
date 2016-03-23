@@ -2,6 +2,7 @@
   <component name="FileTypeManager" version="16">
     <extensionMap>
       <mapping pattern="CREATE TABLE SINNER" type="PLAIN_TEXT" />
+      <mapping pattern="CREATE TABLE CAULDRON" type="SQL" />
     </extensionMap>
   </component>
 </application>
