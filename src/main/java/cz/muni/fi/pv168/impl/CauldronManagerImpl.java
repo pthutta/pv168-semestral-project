@@ -62,9 +62,9 @@ public class CauldronManagerImpl implements CauldronManager {
         cauldron.setHellFloor(rs.getInt("waterTemperature"));
         return cauldron;
     }
-
-
-
+    
+    
+    
     public void createCauldron(Cauldron cauldron) {
 
         validate(cauldron);
