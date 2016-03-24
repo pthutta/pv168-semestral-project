@@ -1,14 +1,21 @@
 package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Cauldron;
-import cz.muni.fi.pv168.impl.CauldronManagerImpl;
+import cz.muni.fi.pv168.CauldronManager;
+import cz.muni.fi.pv168.common.DBUtils;
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.sql.DataSource;
+import java.net.URL;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -18,11 +25,28 @@ import static org.junit.Assert.*;
  */
 public class CauldronManagerImplTest {
 
+    private DataSource ds;
     private CauldronManagerImpl manager;
 
+    private static DataSource prepareDataSource() {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        ds.setDatabaseName("memory:cauldronMgr-test");
+        ds.setCreateDatabase("create");
+        return ds;
+    }
+
     @Before
-    public void SetUp(){
-        manager = new CauldronManagerImpl();
+    public void SetUp() throws SQLException {
+        ds = prepareDataSource();
+        URL tmp = CauldronManager.class.getResource("createTables.sql");
+        assertThat(tmp, is(not(null)));
+        DBUtils.executeSqlScript (ds,tmp);
+        manager = new CauldronManagerImpl(ds);
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        DBUtils.executeSqlScript(ds,CauldronManager.class.getResource("dropTables.sql"));
     }
 
     //createCauldron tests
