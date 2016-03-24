@@ -26,6 +26,12 @@ public class Cauldron {
     }
 
     public void setCapacity(int capacity) {
+        // udelat capacity nemenou, potom co uz byla jendou nastavena
+        /*
+        if (this.capacity != capacity){
+            throw new IllegalArgumentException("capacity cannot be changed");
+        }
+        */
         this.capacity = capacity;
     }
 

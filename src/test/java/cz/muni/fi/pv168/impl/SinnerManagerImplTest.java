@@ -2,14 +2,21 @@ package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Sinner;
 import cz.muni.fi.pv168.SinnerManager;
+
+import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import cz.muni.fi.pv168.common.DBUtils;
+import org.apache.derby.jdbc.EmbeddedDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.sql.DataSource;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -24,17 +31,33 @@ import static org.junit.Assert.assertFalse;
  */
 public class SinnerManagerImplTest {
 
+    private DataSource ds;
     private SinnerManager manager;
+
+    private static DataSource prepareDataSource() {
+        EmbeddedDataSource ds = new EmbeddedDataSource();
+        ds.setDatabaseName("memory:sinnerMgr-test");
+        ds.setCreateDatabase("create");
+        return ds;
+    }
 
     @Before
     public void setUp() throws Exception {
-        manager = new SinnerManagerImpl();
+        ds = prepareDataSource();
+        URL tmp = SinnerManager.class.getResource("createTables.sql");
+        assertThat(tmp, is(not(null)));
+        DBUtils.executeSqlScript (ds,tmp);
+        manager = new SinnerManagerImpl(ds);
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        DBUtils.executeSqlScript(ds,SinnerManager.class.getResource("dropTables.sql"));
     }
 
     @Test
     public void testCreateSinner() throws Exception {
-        Sinner sinner = newSinner("John", "Doe", "killed five babies",
-                LocalDate.of(2125, 12, 27), false);
+        Sinner sinner = newSinner("John", "Doe", "killed five babies", LocalDate.of(2125, 12, 27), false);
         manager.createSinner(sinner);
 
         Long sinnerId = sinner.getId();
