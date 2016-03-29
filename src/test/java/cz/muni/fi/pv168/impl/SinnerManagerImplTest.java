@@ -3,8 +3,6 @@ package cz.muni.fi.pv168.impl;
 import cz.muni.fi.pv168.Sinner;
 import cz.muni.fi.pv168.SinnerManager;
 
-import java.net.URL;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -19,10 +17,7 @@ import org.junit.Test;
 import javax.sql.DataSource;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 
 /**
@@ -44,15 +39,15 @@ public class SinnerManagerImplTest {
     @Before
     public void setUp() throws Exception {
         ds = prepareDataSource();
-        URL tmp = SinnerManager.class.getResource("createTables.sql");
-        assertThat(tmp, is(not(null)));
-        DBUtils.executeSqlScript (ds,tmp);
+        ClassLoader classLoader = getClass().getClassLoader();
+        DBUtils.executeSqlScript (ds, classLoader.getResource("scripts/createTables.sql"));
         manager = new SinnerManagerImpl(ds);
     }
 
     @After
-    public void tearDown() throws SQLException {
-        DBUtils.executeSqlScript(ds,SinnerManager.class.getResource("dropTables.sql"));
+    public void tearDown() throws Exception {
+        ClassLoader classLoader = getClass().getClassLoader();
+        DBUtils.executeSqlScript(ds, classLoader.getResource("scripts/dropTables.sql"));
     }
 
     @Test
@@ -131,7 +126,7 @@ public class SinnerManagerImplTest {
         manager.deleteSinner(s1);
 
         assertThat(manager.findSinnerById(s1.getId()), is(equalTo(null)));
-        assertThat(manager.findSinnerById(s1.getId()), is(not(equalTo(null))));
+        assertThat(manager.findSinnerById(s2.getId()), is(not(equalTo(null))));
     }
 
     @Test

@@ -20,6 +20,9 @@ public class SinnerManagerImpl implements SinnerManager {
     private final DataSource dataSource;
 
     public SinnerManagerImpl(DataSource dataSource) {
+        if (dataSource == null) {
+            throw new IllegalArgumentException("Data source cannot be null.");
+        }
         this.dataSource = dataSource;
     }
 
@@ -37,7 +40,12 @@ public class SinnerManagerImpl implements SinnerManager {
 
             st.setString(1, sinner.getFirstName());
             st.setString(2, sinner.getLastName());
-            st.setString(3, sinner.getReleaseDate().toString());
+            if (sinner.getReleaseDate() == null) {
+                st.setNull(3, Types.DATE);
+            }
+            else {
+                st.setDate(3, toSqlDate(sinner.getReleaseDate()));
+            }
             st.setString(4, sinner.getSin());
             st.setBoolean(5, sinner.isSignedContractWithDevil());
             int addedRows = st.executeUpdate();
@@ -65,7 +73,12 @@ public class SinnerManagerImpl implements SinnerManager {
 
             st.setString(1, sinner.getFirstName());
             st.setString(2, sinner.getLastName());
-            st.setDate(3, toSqlDate(sinner.getReleaseDate()));
+            if (sinner.getReleaseDate() == null) {
+                st.setNull(3, Types.DATE);
+            }
+            else {
+                st.setDate(3, toSqlDate(sinner.getReleaseDate()));
+            }
             st.setString(4, sinner.getSin());
             st.setBoolean(5, sinner.isSignedContractWithDevil());
             st.setLong(6, sinner.getId());

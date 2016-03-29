@@ -21,6 +21,9 @@ public class HellManagerImpl implements HellManager {
     private final DataSource dataSource;
 
     public HellManagerImpl(DataSource dataSource) {
+        if (dataSource == null) {
+            throw new IllegalArgumentException("Data source cannot be null.");
+        }
         this.dataSource = dataSource;
     }
 

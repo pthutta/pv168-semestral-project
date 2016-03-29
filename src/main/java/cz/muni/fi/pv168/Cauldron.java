@@ -50,4 +50,27 @@ public class Cauldron {
     public void setHellFloor(int hellFloor) {
         this.hellFloor = hellFloor;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cauldron cauldron = (Cauldron) o;
+
+        if (capacity != cauldron.capacity) return false;
+        if (waterTemperature != cauldron.waterTemperature) return false;
+        if (hellFloor != cauldron.hellFloor) return false;
+        return id != null ? id.equals(cauldron.id) : cauldron.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + capacity;
+        result = 31 * result + waterTemperature;
+        result = 31 * result + hellFloor;
+        return result;
+    }
 }
