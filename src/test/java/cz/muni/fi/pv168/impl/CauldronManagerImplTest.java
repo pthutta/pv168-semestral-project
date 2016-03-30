@@ -40,7 +40,8 @@ public class CauldronManagerImplTest {
         ds = prepareDataSource();
         ClassLoader classLoader = getClass().getClassLoader();
         DBUtils.executeSqlScript (ds, classLoader.getResource("scripts/createTables.sql"));
-        manager = new CauldronManagerImpl(ds);
+        manager = new CauldronManagerImpl();
+        manager.setDataSource(ds);
     }
 
     @After

@@ -1,10 +1,11 @@
 package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Sinner;
-import cz.muni.fi.pv168.SinnerManager;
+
 import java.time.*;
 
 import cz.muni.fi.pv168.common.DBUtils;
+import cz.muni.fi.pv168.exceptions.EntityNotFoundException;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -28,9 +29,6 @@ public class SinnerManagerImplTestWithWrongValues {
     private final static ZonedDateTime NOW
             = LocalDateTime.of(2016, FEBRUARY, 29, 14, 00).atZone(ZoneId.of("UTC"));
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private static DataSource prepareDataSource() {
         EmbeddedDataSource ds = new EmbeddedDataSource();
         ds.setDatabaseName("memory:sinnerMgrWrong-test");
@@ -41,6 +39,9 @@ public class SinnerManagerImplTestWithWrongValues {
     private static Clock prepareClockMock(ZonedDateTime now) {
         return Clock.fixed(now.toInstant(), now.getZone());
     }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -109,6 +110,15 @@ public class SinnerManagerImplTestWithWrongValues {
                 allOf(containsString("last"), containsString("Empty"))));
         manager.createSinner(sinner);
     }
+
+    @Test
+    public void testCreateSinnerWithOutdatedReleaseDate() throws Exception{
+        Sinner sinner = newSinner("John", "Black", "murder", NOW.toLocalDate().minusDays(1), false);
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(allOf(containsString("Release"), containsString("date")));
+        manager.createSinner(sinner);
+    }
+
 
     @Test
     public void testCreateSinnerNullDateFalseContract() throws Exception {
@@ -193,6 +203,17 @@ public class SinnerManagerImplTestWithWrongValues {
     }
 
     @Test
+    public void testUpdateSinnerWithOutdatedReleaseDate() throws Exception{
+        Sinner sinner = newSinner("John", "Black", "murder", NOW.toLocalDate().plusDays(1), false);
+        manager.createSinner(sinner);
+
+        sinner.setReleaseDate(NOW.toLocalDate().minusDays(1));
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(allOf(containsString("Release"), containsString("date")));
+        manager.updateSinner(sinner);
+    }
+
+    @Test
     public void testUpdateSinnerSetDateTrueContract() throws Exception {
         Sinner sinner = newSinner("John", "Doe", "killed five babies", null, true);
         manager.createSinner(sinner);
@@ -249,11 +270,6 @@ public class SinnerManagerImplTestWithWrongValues {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(anyOf(containsString("null"), containsString("Null")));
         manager.findSinnerById(null);
-    }
-
-    @Test
-    public void testCreateSinnerWithOutdatedReleaseDate() throws Exception{
-        Sinner sinner = newSinner("John", "Doe", "murder", LocalDate.of(2125, 12, 27), false);
     }
 
     private static Sinner newSinner(String firstName, String lastName, String sin, LocalDate releaseDate, boolean contract) {
