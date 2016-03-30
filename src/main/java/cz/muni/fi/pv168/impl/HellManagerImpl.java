@@ -188,7 +188,10 @@ public class HellManagerImpl implements HellManager {
         sinner.setFirstName(rs.getString("firstName"));
         sinner.setLastName(rs.getString("lastName"));
         sinner.setSin(rs.getString("sin"));
-        sinner.setReleaseDate(rs.getDate("releaseDate").toLocalDate());
+        if (sinner.getReleaseDate() != null) {
+            sinner.setReleaseDate(rs.getDate("releaseDate").toLocalDate());
+        }
+        else sinner.setReleaseDate(null);
         sinner.setSignedContractWithDevil(rs.getBoolean("signedContract"));
 
         return sinner;
