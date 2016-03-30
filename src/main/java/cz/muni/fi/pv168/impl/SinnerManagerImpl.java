@@ -2,6 +2,8 @@ package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Sinner;
 import cz.muni.fi.pv168.SinnerManager;
+import cz.muni.fi.pv168.exceptions.EntityNotFoundException;
+import cz.muni.fi.pv168.exceptions.ServiceFailureException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -29,14 +31,8 @@ public class SinnerManagerImpl implements SinnerManager {
         this.dataSource = dataSource;
     }
 
-    private void checkDataSource() {
-        if (dataSource == null) {
-            throw new IllegalStateException("DataSource is not set");
-        }
-    }
-
-
     public void createSinner(Sinner sinner) {
+        checkDataSource();
         validateSinner(sinner);
         if (sinner.getId() != null) {
             throw new IllegalArgumentException("Sinner id is already set");
@@ -72,6 +68,7 @@ public class SinnerManagerImpl implements SinnerManager {
     }
 
     public void updateSinner(Sinner sinner) {
+        checkDataSource();
         validateSinner(sinner);
         if (sinner.getId() == null) {
             throw new IllegalArgumentException("Sinner id is null");
@@ -105,6 +102,7 @@ public class SinnerManagerImpl implements SinnerManager {
     }
 
     public void deleteSinner(Sinner sinner) {
+        checkDataSource();
         if (sinner == null) {
             throw new IllegalArgumentException("sinner is null");
         }
@@ -131,6 +129,7 @@ public class SinnerManagerImpl implements SinnerManager {
 
 
     public Sinner findSinnerById(Long id) {
+        checkDataSource();
         if (id == null){
             throw new IllegalArgumentException("Id cant be null");
         }
@@ -162,6 +161,7 @@ public class SinnerManagerImpl implements SinnerManager {
     }
 
     public List<Sinner> findAllSinners() {
+        checkDataSource();
         try (   Connection connection = dataSource.getConnection();
                 PreparedStatement st = connection.prepareStatement(
                         "SELECT id, firstName, lastName, releaseDate, sin, signedContract FROM sinner")) {
@@ -184,6 +184,12 @@ public class SinnerManagerImpl implements SinnerManager {
 
     //subsidiary methods:
 
+    private void checkDataSource() {
+        if (dataSource == null) {
+            throw new IllegalStateException("DataSource is not set");
+        }
+    }
+
     private void validateSinner(Sinner sinner) throws IllegalArgumentException {
         if (sinner == null) {
             throw new IllegalArgumentException("Cauldron is null");
@@ -197,7 +203,7 @@ public class SinnerManagerImpl implements SinnerManager {
 
         LocalDate today = (clock == null) ? LocalDate.now() : LocalDate.now(clock);
         if (sinner.getReleaseDate() != null && sinner.getReleaseDate().isBefore(today)) {
-            throw new IllegalArgumentException("Date cannot be in the past");
+            throw new IllegalArgumentException("Release date cannot be in the past");
         }
         if (sinner.getReleaseDate() == null && !sinner.isSignedContractWithDevil()) {
             throw new IllegalArgumentException("Sinner has to have either a release date or signed contract with a devil.");

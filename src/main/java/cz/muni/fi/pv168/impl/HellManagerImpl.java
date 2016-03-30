@@ -3,6 +3,9 @@ package cz.muni.fi.pv168.impl;
 import cz.muni.fi.pv168.Cauldron;
 import cz.muni.fi.pv168.HellManager;
 import cz.muni.fi.pv168.Sinner;
+import cz.muni.fi.pv168.common.DBUtils;
+import cz.muni.fi.pv168.exceptions.IllegalEntityException;
+import cz.muni.fi.pv168.exceptions.ServiceFailureException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -18,16 +21,14 @@ import java.util.List;
  */
 public class HellManagerImpl implements HellManager {
 
-    private final DataSource dataSource;
+    private DataSource dataSource;
 
-    public HellManagerImpl(DataSource dataSource) {
-        if (dataSource == null) {
-            throw new IllegalArgumentException("Data source cannot be null.");
-        }
+    public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     public List<Sinner> findSinnersInCauldron(Cauldron cauldron) {
+        checkDataSource();
         if (cauldron == null) {
             throw new IllegalArgumentException("Cauldron is null");
         }
@@ -58,6 +59,7 @@ public class HellManagerImpl implements HellManager {
     }
 
     public Cauldron findCauldronWithSinner(Sinner sinner) {
+        checkDataSource();
         if (sinner == null) {
             throw new IllegalArgumentException("Sinner is null");
         }
@@ -92,6 +94,7 @@ public class HellManagerImpl implements HellManager {
     }
 
     public void boilSinnerInCauldron(Sinner sinner, Cauldron cauldron) {
+        checkDataSource();
         if (sinner == null) {
             throw new IllegalArgumentException("Sinner is null");
         }
@@ -107,6 +110,9 @@ public class HellManagerImpl implements HellManager {
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement st = connection.prepareStatement("UPDATE sinner SET cauldronId = ? WHERE id = ?")) {
+
+            checkIfCauldronHasSpace(connection, cauldron);
+
             st.setLong(1, cauldron.getId());
             st.setLong(2, sinner.getId());
 
@@ -121,11 +127,15 @@ public class HellManagerImpl implements HellManager {
     }
 
     public void releaseSinnerFromCauldron(Sinner sinner) {
+        checkDataSource();
         if (sinner == null) {
             throw new IllegalArgumentException("Sinner is null");
         }
         if (sinner.getId() == null) {
             throw new IllegalArgumentException("Sinner id is null");
+        }
+        if (sinner.isSignedContractWithDevil()) {
+            throw new IllegalArgumentException("Contract was signed, cannot release sinner from cauldron");
         }
 
         try (Connection connection = dataSource.getConnection();
@@ -139,6 +149,35 @@ public class HellManagerImpl implements HellManager {
 
         } catch (SQLException e) {
             throw new ServiceFailureException("Error updating data in database", e);
+        }
+    }
+
+    private void checkDataSource() {
+        if (dataSource == null) {
+            throw new IllegalStateException("DataSource is not set");
+        }
+    }
+
+    private static void checkIfCauldronHasSpace(Connection conn, Cauldron cauldron) throws SQLException {
+        PreparedStatement checkSt = null;
+        try {
+            checkSt = conn.prepareStatement(
+                    "SELECT capacity, COUNT(sinner.id) as sinnerCount " +
+                            "FROM cauldron LEFT JOIN sinner ON cauldron.id = sinner.cauldronId " +
+                            "WHERE cauldron.id = ? " +
+                            "GROUP BY cauldron.id, capacity");
+            checkSt.setLong(1, cauldron.getId());
+            ResultSet rs = checkSt.executeQuery();
+            if (rs.next()) {
+                if (rs.getInt("capacity") <= rs.getInt("sinnerCount")) {
+                    throw new IllegalEntityException("Cauldron " + cauldron + " is already full");
+                }
+            } else {
+                throw new IllegalEntityException("Cauldron " + cauldron + " does not exist in the database");
+            }
+        }
+        finally {
+            DBUtils.closeQuietly(null, checkSt);
         }
     }
 

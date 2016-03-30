@@ -1,4 +1,4 @@
-package cz.muni.fi.pv168.impl;
+package cz.muni.fi.pv168.exceptions;
 
 /**
  * Created by cechy on 21.03.2016.

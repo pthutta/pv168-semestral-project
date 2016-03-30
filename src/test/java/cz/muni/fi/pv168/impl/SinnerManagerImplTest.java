@@ -18,6 +18,7 @@ import org.junit.rules.ExpectedException;
 import javax.sql.DataSource;
 
 import static java.time.Month.FEBRUARY;
+import static java.time.Month.MARCH;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
@@ -31,19 +32,16 @@ public class SinnerManagerImplTest {
 
     private DataSource ds;
     private SinnerManagerImpl manager;
-    private final static ZonedDateTime NOW
-            = LocalDateTime.of(2016, FEBRUARY, 29, 14, 00).atZone(ZoneId.of("UTC"));
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    private final static ZonedDateTime NOW
+            = LocalDateTime.of(2016, MARCH, 29, 14, 00).atZone(ZoneId.of("UTC"));
 
     private static DataSource prepareDataSource() {
         EmbeddedDataSource ds = new EmbeddedDataSource();
-        ds.setDatabaseName("memory:sinnerMgrWrong-test");
+        ds.setDatabaseName("memory:sinnerMgr-test");
         ds.setCreateDatabase("create");
         return ds;
     }
-
 
     private static Clock prepareClockMock(ZonedDateTime now) {
         return Clock.fixed(now.toInstant(), now.getZone());
@@ -67,7 +65,7 @@ public class SinnerManagerImplTest {
 
     @Test
     public void testCreateSinner() throws Exception {
-        Sinner sinner = newSinner("John", "Doe", "killed five babies", LocalDate.of(2125, 12, 27), false);
+        Sinner sinner = newSinner("John", "Doe", "killed five babies", NOW.toLocalDate(), false);
         manager.createSinner(sinner);
 
         Long sinnerId = sinner.getId();
