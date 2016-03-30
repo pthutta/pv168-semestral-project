@@ -1,9 +1,8 @@
 package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Sinner;
-import cz.muni.fi.pv168.SinnerManager;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -12,9 +11,13 @@ import cz.muni.fi.pv168.common.DBUtils;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import javax.sql.DataSource;
+
+import static java.time.Month.FEBRUARY;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
@@ -27,21 +30,33 @@ import static org.junit.Assert.*;
 public class SinnerManagerImplTest {
 
     private DataSource ds;
-    private SinnerManager manager;
+    private SinnerManagerImpl manager;
+    private final static ZonedDateTime NOW
+            = LocalDateTime.of(2016, FEBRUARY, 29, 14, 00).atZone(ZoneId.of("UTC"));
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private static DataSource prepareDataSource() {
         EmbeddedDataSource ds = new EmbeddedDataSource();
-        ds.setDatabaseName("memory:sinnerMgr-test");
+        ds.setDatabaseName("memory:sinnerMgrWrong-test");
         ds.setCreateDatabase("create");
         return ds;
     }
 
+
+    private static Clock prepareClockMock(ZonedDateTime now) {
+        return Clock.fixed(now.toInstant(), now.getZone());
+    }
+
     @Before
     public void setUp() throws Exception {
+        ds = null;
         ds = prepareDataSource();
         ClassLoader classLoader = getClass().getClassLoader();
-        DBUtils.executeSqlScript (ds, classLoader.getResource("scripts/createTables.sql"));
-        manager = new SinnerManagerImpl(ds);
+        DBUtils.executeSqlScript(ds, classLoader.getResource("scripts/createTables.sql"));
+        manager = new SinnerManagerImpl(prepareClockMock(NOW));
+        manager.setDataSource(ds);
     }
 
     @After

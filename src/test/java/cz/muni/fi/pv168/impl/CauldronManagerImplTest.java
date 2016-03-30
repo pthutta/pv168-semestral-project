@@ -191,15 +191,6 @@ public class CauldronManagerImplTest {
         }
 
         try {
-            cauldron1 = manager.findCauldronById(cauldron1Id);
-            cauldron1.setId(cauldron1Id-1);
-            manager.updateCauldron(cauldron1);
-            fail("changing Id that was once set not detected");
-        } catch (IllegalArgumentException ex) {
-            //OK
-        }
-
-        try {
             cauldron1.setHellFloor(-5);
             manager.updateCauldron(cauldron1);
             fail("hell floor cannot be set to numbers lower than 0");

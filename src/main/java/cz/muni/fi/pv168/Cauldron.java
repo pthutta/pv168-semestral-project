@@ -18,6 +18,9 @@ public class Cauldron {
     }
 
     public void setId(Long id) {
+        if(this.id != null){
+            throw new IllegalArgumentException("Id once set cannot be changed");
+        }
         this.id = id;
     }
 

@@ -2,8 +2,7 @@ package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Sinner;
 import cz.muni.fi.pv168.SinnerManager;
-
-import java.time.LocalDate;
+import java.time.*;
 
 import cz.muni.fi.pv168.common.DBUtils;
 import org.apache.derby.jdbc.EmbeddedDataSource;
@@ -15,6 +14,7 @@ import org.junit.rules.ExpectedException;
 
 import javax.sql.DataSource;
 
+import static java.time.Month.FEBRUARY;
 import static org.hamcrest.CoreMatchers.*;
 
 /**
@@ -24,7 +24,9 @@ import static org.hamcrest.CoreMatchers.*;
 public class SinnerManagerImplTestWithWrongValues {
 
     private DataSource ds;
-    private SinnerManager manager;
+    private SinnerManagerImpl manager;
+    private final static ZonedDateTime NOW
+            = LocalDateTime.of(2016, FEBRUARY, 29, 14, 00).atZone(ZoneId.of("UTC"));
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -36,12 +38,17 @@ public class SinnerManagerImplTestWithWrongValues {
         return ds;
     }
 
+    private static Clock prepareClockMock(ZonedDateTime now) {
+        return Clock.fixed(now.toInstant(), now.getZone());
+    }
+
     @Before
     public void setUp() throws Exception {
         ds = prepareDataSource();
         ClassLoader classLoader = getClass().getClassLoader();
-        DBUtils.executeSqlScript (ds, classLoader.getResource("scripts/createTables.sql"));
-        manager = new SinnerManagerImpl(ds);
+        DBUtils.executeSqlScript(ds, classLoader.getResource("scripts/createTables.sql"));
+        manager = new SinnerManagerImpl(prepareClockMock(NOW));
+        manager.setDataSource(ds);
     }
 
     @After
@@ -53,7 +60,7 @@ public class SinnerManagerImplTestWithWrongValues {
     @Test
     public void testCreateSinnerNullSinner() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(containsString("null"));
+        thrown.expectMessage(anyOf(containsString("null"), containsString("Null")));
         manager.createSinner(null);
     }
 
@@ -63,7 +70,7 @@ public class SinnerManagerImplTestWithWrongValues {
         sinner.setId(5L);
 
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(containsString("id"));
+        thrown.expectMessage(anyOf(containsString("id"), containsString("Id")));
         manager.createSinner(sinner);
     }
 
@@ -71,7 +78,8 @@ public class SinnerManagerImplTestWithWrongValues {
     public void testCreateSinnerNullFirstName() throws Exception {
         Sinner sinner = newSinner(null, "Doe", "murder", null, true);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("first"), containsString("null")));
+        thrown.expectMessage(anyOf(allOf(containsString("first"), containsString("Null")),
+                allOf(containsString("First"), containsString("null"))));
         manager.createSinner(sinner);
     }
 
@@ -79,7 +87,8 @@ public class SinnerManagerImplTestWithWrongValues {
     public void testCreateSinnerEmptyFirstName() throws Exception {
         Sinner sinner = newSinner("", "Doe", "murder", null, true);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("first"), containsString("empty")));
+        thrown.expectMessage(anyOf(allOf(containsString("First"), containsString("empty")),
+                allOf(containsString("first"), containsString("Empty"))));
         manager.createSinner(sinner);
     }
 
@@ -87,7 +96,8 @@ public class SinnerManagerImplTestWithWrongValues {
     public void testCreateSinnerNullLastName() throws Exception {
         Sinner sinner = newSinner("John", null, "murder", null, true);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("last"), containsString("null")));
+        thrown.expectMessage(anyOf(allOf(containsString("Last"), containsString("null")),
+                allOf(containsString("last"), containsString("Null"))));
         manager.createSinner(sinner);
     }
 
@@ -95,7 +105,8 @@ public class SinnerManagerImplTestWithWrongValues {
     public void testCreateSinnerEmptyLastName() throws Exception {
         Sinner sinner = newSinner("John", "", "murder", null, true);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("last"), containsString("empty")));
+        thrown.expectMessage(anyOf(allOf(containsString("Last"), containsString("empty")),
+                allOf(containsString("last"), containsString("Empty"))));
         manager.createSinner(sinner);
     }
 
@@ -103,7 +114,8 @@ public class SinnerManagerImplTestWithWrongValues {
     public void testCreateSinnerNullDateFalseContract() throws Exception {
         Sinner sinner = newSinner("John", "Doe", "murder", null, false);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("date"), containsString("signed")));
+        thrown.expectMessage(anyOf(allOf(containsString("date"), containsString("signed")),
+                allOf(containsString("Date"), containsString("signed")), allOf(containsString("date"), containsString("Signed"))));
         manager.createSinner(sinner);
     }
 
@@ -111,39 +123,24 @@ public class SinnerManagerImplTestWithWrongValues {
     public void testCreateSinnerSetDateTrueContract() throws Exception {
         Sinner sinner = newSinner("John", "Doe", "murder", LocalDate.of(2125, 12, 27), true);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("date"), containsString("signed")));
+        thrown.expectMessage(anyOf(allOf(containsString("date"), containsString("signed")),
+                allOf(containsString("Date"), containsString("signed")), allOf(containsString("date"), containsString("Signed"))));
         manager.createSinner(sinner);
     }
 
     @Test
     public void testUpdateSinnerNullSinner() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(containsString("null"));
+        thrown.expectMessage(anyOf(containsString("null"), containsString("Null")));
         manager.updateSinner(null);
     }
 
     @Test
     public void testUpdateSinnerNullId() throws Exception {
         Sinner sinner = newSinner("John", "Doe", "killed five babies", null, true);
-        manager.createSinner(sinner);
-        Long sinnerId = sinner.getId();
 
-        sinner = manager.findSinnerById(sinnerId);
         sinner.setId(null);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("id"), containsString("null")));
-        manager.updateSinner(sinner);
-    }
-
-    @Test
-    public void testUpdateSinnerChangedId() throws Exception {
-        Sinner sinner = newSinner("John", "Doe", "killed five babies", null, true);
-        manager.createSinner(sinner);
-        Long sinnerId = sinner.getId();
-
-        sinner.setId(sinnerId + 1);
-        thrown.expect(EntityNotFoundException.class);
-        thrown.expectMessage(containsString("id")); //tuto si treba rozmysliet ci a ako to budeme riesit
         manager.updateSinner(sinner);
     }
 
@@ -154,7 +151,8 @@ public class SinnerManagerImplTestWithWrongValues {
 
         sinner.setFirstName(null);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("first"), containsString("null")));
+        thrown.expectMessage(anyOf(allOf(containsString("First"), containsString("null")),
+                allOf(containsString("first"), containsString("Null"))));
         manager.updateSinner(sinner);
     }
 
@@ -165,7 +163,8 @@ public class SinnerManagerImplTestWithWrongValues {
 
         sinner.setFirstName("");
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("first"), containsString("empty")));
+        thrown.expectMessage(anyOf(allOf(containsString("First"), containsString("empty")),
+                allOf(containsString("first"), containsString("Empty"))));
         manager.updateSinner(sinner);
     }
 
@@ -176,7 +175,8 @@ public class SinnerManagerImplTestWithWrongValues {
 
         sinner.setLastName(null);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("last"), containsString("null")));
+        thrown.expectMessage(anyOf(allOf(containsString("Last"), containsString("null")),
+                allOf(containsString("last"), containsString("Null"))));
         manager.updateSinner(sinner);
     }
 
@@ -187,7 +187,8 @@ public class SinnerManagerImplTestWithWrongValues {
 
         sinner.setLastName("");
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("last"), containsString("empty")));
+        thrown.expectMessage(anyOf(allOf(containsString("Last"), containsString("empty")),
+                allOf(containsString("last"), containsString("Empty"))));
         manager.updateSinner(sinner);
     }
 
@@ -197,9 +198,9 @@ public class SinnerManagerImplTestWithWrongValues {
         manager.createSinner(sinner);
 
         sinner.setReleaseDate(LocalDate.of(2035, 4, 1));
-        sinner.setSignedContractWithDevil(true);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("date"), containsString("signed")));
+        thrown.expectMessage(anyOf(allOf(containsString("date"), containsString("signed")),
+                allOf(containsString("Date"), containsString("signed")), allOf(containsString("date"), containsString("Signed"))));
         manager.updateSinner(sinner);
     }
 
@@ -211,7 +212,8 @@ public class SinnerManagerImplTestWithWrongValues {
         sinner.setReleaseDate(null);
         sinner.setSignedContractWithDevil(false);
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("date"), containsString("signed")));
+        thrown.expectMessage(anyOf(allOf(containsString("date"), containsString("signed")),
+                allOf(containsString("Date"), containsString("signed")),allOf(containsString("date"), containsString("Signed"))));
         manager.updateSinner(sinner);
     }
 
@@ -227,8 +229,9 @@ public class SinnerManagerImplTestWithWrongValues {
         Sinner sinner = newSinner("John", "Doe", "murder", null, true);
 
         sinner.setId(null);
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(allOf(containsString("id"), containsString("null")));
+        thrown.expect(IllegalArgumentException.class); //jak tedy?
+        thrown.expectMessage(anyOf(allOf(containsString("id"), containsString("null")),allOf(containsString("Id"),
+                containsString("null")), allOf(containsString("id"), containsString("Null"))));
         manager.deleteSinner(sinner);
     }
 
@@ -237,15 +240,20 @@ public class SinnerManagerImplTestWithWrongValues {
         Sinner sinner = newSinner("John", "Doe", "murder", null, true);
 
         sinner.setId(2L);
-        thrown.expect(IllegalArgumentException.class);
+        thrown.expect(EntityNotFoundException.class);
         manager.deleteSinner(sinner);
     }
 
     @Test
     public void testFindSinnerByIdNullId() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(containsString("null"));
+        thrown.expectMessage(anyOf(containsString("null"), containsString("Null")));
         manager.findSinnerById(null);
+    }
+
+    @Test
+    public void testCreateSinnerWithOutdatedReleaseDate() throws Exception{
+        Sinner sinner = newSinner("John", "Doe", "murder", LocalDate.of(2125, 12, 27), false);
     }
 
     private static Sinner newSinner(String firstName, String lastName, String sin, LocalDate releaseDate, boolean contract) {
