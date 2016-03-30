@@ -172,10 +172,5 @@ public class SinnerManagerImplTest {
         return sinner;
     }
 
-    private static Comparator<Sinner> sinnerComparator = new Comparator<Sinner>() {
-        @Override
-        public int compare(Sinner o1, Sinner o2) {
-            return o1.getId().compareTo(o2.getId());
-        }
-    };
+    private static Comparator<Sinner> sinnerComparator = (o1, o2) -> o1.getId().compareTo(o2.getId());
 }

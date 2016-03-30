@@ -195,7 +195,7 @@ public class CauldronManagerImplTest {
             cauldron1.setId(cauldron1Id-1);
             manager.updateCauldron(cauldron1);
             fail("changing Id that was once set not detected");
-        } catch (EntityNotFoundException ex) {
+        } catch (IllegalArgumentException ex) {
             //OK
         }
 
@@ -241,12 +241,5 @@ public class CauldronManagerImplTest {
         return cauldron;
     }
 
-    private static Comparator<Cauldron> idComparator = new Comparator<Cauldron>() {
-        @Override
-        public int compare(Cauldron c1, Cauldron c2) {
-            return c1.getId().compareTo(c2.getId());
-        }
-    };
-
-
+    private static Comparator<Cauldron> idComparator = (c1, c2) -> c1.getId().compareTo(c2.getId());
 }
