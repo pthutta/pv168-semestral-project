@@ -1,11 +1,8 @@
 package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Sinner;
-import cz.muni.fi.pv168.SinnerManager;
 
-import java.net.URL;
-import java.sql.SQLException;
-import java.time.LocalDate;
+import java.time.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -14,15 +11,16 @@ import cz.muni.fi.pv168.common.DBUtils;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import javax.sql.DataSource;
+
+import static java.time.Month.FEBRUARY;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 
 /**
@@ -32,27 +30,39 @@ import static org.junit.Assert.assertFalse;
 public class SinnerManagerImplTest {
 
     private DataSource ds;
-    private SinnerManager manager;
+    private SinnerManagerImpl manager;
+    private final static ZonedDateTime NOW
+            = LocalDateTime.of(2016, FEBRUARY, 29, 14, 00).atZone(ZoneId.of("UTC"));
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private static DataSource prepareDataSource() {
         EmbeddedDataSource ds = new EmbeddedDataSource();
-        ds.setDatabaseName("memory:sinnerMgr-test");
+        ds.setDatabaseName("memory:sinnerMgrWrong-test");
         ds.setCreateDatabase("create");
         return ds;
     }
 
+
+    private static Clock prepareClockMock(ZonedDateTime now) {
+        return Clock.fixed(now.toInstant(), now.getZone());
+    }
+
     @Before
     public void setUp() throws Exception {
+        ds = null;
         ds = prepareDataSource();
-        URL tmp = SinnerManager.class.getResource("createTables.sql");
-        assertThat(tmp, is(not(null)));
-        DBUtils.executeSqlScript (ds,tmp);
-        manager = new SinnerManagerImpl(ds);
+        ClassLoader classLoader = getClass().getClassLoader();
+        DBUtils.executeSqlScript(ds, classLoader.getResource("scripts/createTables.sql"));
+        manager = new SinnerManagerImpl(prepareClockMock(NOW));
+        manager.setDataSource(ds);
     }
 
     @After
-    public void tearDown() throws SQLException {
-        DBUtils.executeSqlScript(ds,SinnerManager.class.getResource("dropTables.sql"));
+    public void tearDown() throws Exception {
+        ClassLoader classLoader = getClass().getClassLoader();
+        DBUtils.executeSqlScript(ds, classLoader.getResource("scripts/dropTables.sql"));
     }
 
     @Test
@@ -131,7 +141,7 @@ public class SinnerManagerImplTest {
         manager.deleteSinner(s1);
 
         assertThat(manager.findSinnerById(s1.getId()), is(equalTo(null)));
-        assertThat(manager.findSinnerById(s1.getId()), is(not(equalTo(null))));
+        assertThat(manager.findSinnerById(s2.getId()), is(not(equalTo(null))));
     }
 
     @Test
@@ -177,10 +187,5 @@ public class SinnerManagerImplTest {
         return sinner;
     }
 
-    private static Comparator<Sinner> sinnerComparator = new Comparator<Sinner>() {
-        @Override
-        public int compare(Sinner o1, Sinner o2) {
-            return o1.getId().compareTo(o2.getId());
-        }
-    };
+    private static Comparator<Sinner> sinnerComparator = (o1, o2) -> o1.getId().compareTo(o2.getId());
 }

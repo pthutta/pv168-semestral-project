@@ -18,6 +18,9 @@ public class CauldronManagerImpl implements CauldronManager {
     private final DataSource dataSource;
 
     public CauldronManagerImpl(DataSource dataSource) {
+        if (dataSource == null) {
+            throw new IllegalArgumentException("Data source cannot be null.");
+        }
         this.dataSource = dataSource;
     }
 

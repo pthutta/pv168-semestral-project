@@ -1,5 +1,8 @@
 package cz.muni.fi.pv168;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
+import com.sun.xml.internal.bind.v2.runtime.IllegalAnnotationException;
+
 import java.time.LocalDate;
 
 /**
@@ -25,6 +28,9 @@ public class Sinner {
     }
 
     public void setId(Long id) {
+        if(this.id != null){
+            throw new IllegalArgumentException("Id once set cannot be changed");
+        }
         this.id = id;
     }
 

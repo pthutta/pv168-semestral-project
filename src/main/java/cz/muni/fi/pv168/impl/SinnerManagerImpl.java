@@ -5,6 +5,7 @@ import cz.muni.fi.pv168.SinnerManager;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +18,21 @@ import java.util.List;
  */
 public class SinnerManagerImpl implements SinnerManager {
 
-    private final DataSource dataSource;
+    private DataSource dataSource;
+    private final Clock clock;
 
-    public SinnerManagerImpl(DataSource dataSource) {
+    public SinnerManagerImpl(Clock clock) {
+        this.clock = clock;
+    }
+
+    public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    private void checkDataSource() {
+        if (dataSource == null) {
+            throw new IllegalStateException("DataSource is not set");
+        }
     }
 
 
@@ -37,7 +49,12 @@ public class SinnerManagerImpl implements SinnerManager {
 
             st.setString(1, sinner.getFirstName());
             st.setString(2, sinner.getLastName());
-            st.setString(3, sinner.getReleaseDate().toString());
+            if (sinner.getReleaseDate() == null) {
+                st.setNull(3, Types.DATE);
+            }
+            else {
+                st.setDate(3, toSqlDate(sinner.getReleaseDate()));
+            }
             st.setString(4, sinner.getSin());
             st.setBoolean(5, sinner.isSignedContractWithDevil());
             int addedRows = st.executeUpdate();
@@ -65,7 +82,12 @@ public class SinnerManagerImpl implements SinnerManager {
 
             st.setString(1, sinner.getFirstName());
             st.setString(2, sinner.getLastName());
-            st.setDate(3, toSqlDate(sinner.getReleaseDate()));
+            if (sinner.getReleaseDate() == null) {
+                st.setNull(3, Types.DATE);
+            }
+            else {
+                st.setDate(3, toSqlDate(sinner.getReleaseDate()));
+            }
             st.setString(4, sinner.getSin());
             st.setBoolean(5, sinner.isSignedContractWithDevil());
             st.setLong(6, sinner.getId());
@@ -109,6 +131,9 @@ public class SinnerManagerImpl implements SinnerManager {
 
 
     public Sinner findSinnerById(Long id) {
+        if (id == null){
+            throw new IllegalArgumentException("Id cant be null");
+        }
         try (   Connection connection = dataSource.getConnection();
                 PreparedStatement st = connection.prepareStatement(
                         "SELECT id, firstName, lastName, releaseDate, sin, signedContract FROM sinner WHERE id = ?")) {
@@ -163,11 +188,28 @@ public class SinnerManagerImpl implements SinnerManager {
         if (sinner == null) {
             throw new IllegalArgumentException("Cauldron is null");
         }
-        if (sinner.getFirstName() == null || sinner.getLastName() == null){
-            throw new IllegalArgumentException("Name is null");
+        if (sinner.getFirstName() == null) {
+            throw new IllegalArgumentException("First name is null");
+        }
+        if (sinner.getLastName() == null) {
+            throw new IllegalArgumentException("Last name is null");
+        }
+
+        LocalDate today = (clock == null) ? LocalDate.now() : LocalDate.now(clock);
+        if (sinner.getReleaseDate() != null && sinner.getReleaseDate().isBefore(today)) {
+            throw new IllegalArgumentException("Date cannot be in the past");
         }
         if (sinner.getReleaseDate() == null && !sinner.isSignedContractWithDevil()) {
             throw new IllegalArgumentException("Sinner has to have either a release date or signed contract with a devil.");
+        }
+        if (sinner.getReleaseDate() != null && sinner.isSignedContractWithDevil()) {
+            throw new IllegalArgumentException("Sinner can have only one, a release date or a signed contract with a devil.");
+        }
+        if (sinner.getFirstName().isEmpty()) {
+            throw new IllegalArgumentException("First name is empty");
+        }
+        if (sinner.getLastName().isEmpty()) {
+            throw new IllegalArgumentException("Last name is empty");
         }
     }
 
