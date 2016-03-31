@@ -69,7 +69,7 @@ public class HellManagerImpl implements HellManager {
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement st = connection.prepareStatement("SELECT cauldron.id, cauldron.capacity, " +
-                     "cauldron.waterTemperature, cauldron.hellFloor FROM sinner LEFT JOIN cauldron ON " +
+                     "cauldron.waterTemperature, cauldron.hellFloor FROM cauldron JOIN sinner ON " +
                      "sinner.cauldronId = cauldron.id AND sinner.id = ?")) {
             st.setLong(1, sinner.getId());
 

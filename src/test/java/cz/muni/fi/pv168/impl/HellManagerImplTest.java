@@ -153,10 +153,8 @@ public class HellManagerImplTest {
 
         manager.boilSinnerInCauldron(sinner, c1);
         Cauldron c2 = manager.findCauldronWithSinner(sinner);
-        manager.releaseSinnerFromCauldron(sinner);    //TODO - tohle podle me nefunguje
-        Cauldron c3 = manager.findCauldronWithSinner(sinner);   // + proc je pouzito UPDATE misto DELETE v releaseSinnerFromCauldron?
-        // - myslim, ze kdyz ho chceme releasnout muzem ho rovnou smazat....findCauldronWithSinner funguje?-tam podle me hledame podle sinner ID ne?
-        // a to najdem i kdyz neni v Cauldronu
+        manager.releaseSinnerFromCauldron(sinner);
+        Cauldron c3 = manager.findCauldronWithSinner(sinner);
 
         assertThat("Sinner was found in a cauldron after release." , c3, is(equalTo(null)));
         assertThat("Cauldron where was sinner boiled is the same instance " +
@@ -166,14 +164,11 @@ public class HellManagerImplTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Test                                                              //TODO - proc tomu setujes ID?
-    public void boilSinnerInCauldronFullCauldron() throws Exception {  //presunul som to sem, lebo musia byt v databaze
-        Sinner sinner1 = newSinner("Joe", "Doe", "murder", null, true); //a nechcelo sa mi to konfigurovat kvoli jednemu testu
-        //sinner1.setId(1L);
+    @Test
+    public void boilSinnerInCauldronFullCauldron() throws Exception {
+        Sinner sinner1 = newSinner("Joe", "Doe", "murder", null, true);
         Sinner sinner2 = newSinner("Jack", "Black", "murder", null, true);
-        //sinner2.setId(2L);
         Cauldron cauldron = newCauldron(1, 1, 32);
-        //cauldron.setId(1L);
 
         sinnerManager.createSinner(sinner1);
         sinnerManager.createSinner(sinner2);
