@@ -4,6 +4,7 @@ import cz.muni.fi.pv168.Cauldron;
 import cz.muni.fi.pv168.HellManager;
 import cz.muni.fi.pv168.Sinner;
 import cz.muni.fi.pv168.common.DBUtils;
+import cz.muni.fi.pv168.exceptions.IllegalEntityException;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -13,12 +14,16 @@ import org.junit.rules.ExpectedException;
 
 import javax.sql.DataSource;
 import java.time.*;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
-import static java.time.Month.FEBRUARY;
 import static java.time.Month.MARCH;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Peter Hutta
@@ -69,39 +74,109 @@ public class HellManagerImplTest {
 
     @Test
     public void findSinnersInCauldron() throws Exception {
-        assert(false);
+        Cauldron cauldron = newCauldron(1, 10, 32);
+        Sinner s1 = newSinner("Jack", "Ripper", "serial killer", null, true);
+        Sinner s2 = newSinner("Francisco", "Guerrero", "serial killer", null, true);
+        sinnerManager.createSinner(s1);
+        sinnerManager.createSinner(s2);
+        cauldronManager.createCauldron(cauldron);
+
+        manager.boilSinnerInCauldron(s1, cauldron);
+        manager.boilSinnerInCauldron(s2, cauldron);
+
+        List<Sinner> actual = manager.findSinnersInCauldron(cauldron);
+        List<Sinner> expected = Arrays.asList(s1, s2);
+
+        actual.sort(sinnerComparator);
+        expected.sort(sinnerComparator);
+
+        assertEquals("Saved and retrieved sinners differ.", expected, actual);
     }
 
     @Test
     public void findCauldronWithSinner() throws Exception {
-        assert(false);
+        Cauldron c1 = newCauldron(9, 1, 666);
+        Sinner s1 = newSinner("John", "Red", "serial serial killer", null, true);
+        sinnerManager.createSinner(s1);
+        cauldronManager.createCauldron(c1);
+
+        manager.boilSinnerInCauldron(s1, c1);
+        Cauldron c2 = manager.findCauldronWithSinner(s1);
+
+        assertThat("Sinner was not found in the right cauldron.", c1, is(equalTo(c2)));
     }
 
     @Test
-    public void boilSinnerInCauldron() throws Exception {
-        assert(false);
+    public void boilSinnerInCauldronDependantOnFindCauldronWithSinner() throws Exception {
+        Cauldron c1 = newCauldron(5, 3, 999);
+        Sinner s1 = newSinner("Dexter", "Morgan", "serial serial killer", NOW.toLocalDate(), false);
+        sinnerManager.createSinner(s1);
+        cauldronManager.createCauldron(c1);
+
+        manager.boilSinnerInCauldron(s1, c1);
+
+        Long sinnerId = s1.getId();
+        assertThat("Saved sinner has null id", sinnerId, is(not(equalTo(null))));
+
+        Cauldron c2 = manager.findCauldronWithSinner(s1);
+
+        assertEquals("Cauldron to which sinner was saved and the one where he was find differs.", c1, c2);
+    }
+
+    @Test
+    public void boilSinnerInCauldronDependantOnFindSinnersInCauldron() throws Exception {
+        Cauldron cauldron = newCauldron(5, 3, 999);
+        Sinner s1 = newSinner("Dexter", "Morgan", "serial serial killer", null, true);
+        sinnerManager.createSinner(s1);
+        cauldronManager.createCauldron(cauldron);
+
+        manager.boilSinnerInCauldron(s1, cauldron);
+
+        Long sinnerId = s1.getId();
+        assertThat("Saved sinner has null id", sinnerId, is(not(equalTo(null))));
+
+        List<Sinner> actual = manager.findSinnersInCauldron(cauldron);
+
+        actual.sort(sinnerComparator);
+        assertThat("Saved sinner differs from the loaded one", s1, is(equalTo(actual.get(0))));
+        assertThat("Loaded sinner is the same instance", s1, is(not(sameInstance(actual.get(0)))));
+
+        assertEquals("Saved and retrieved sinners differ.", s1, actual.get(0));
     }
 
     @Test
     public void releaseSinnerFromCauldron() throws Exception {
-        assert(false);
+        Sinner sinner = newSinner("Dexter", "Morgan", "serial serial killer", NOW.toLocalDate(), false);
+        Cauldron c1 = newCauldron(2, 1, 36);
+        sinnerManager.createSinner(sinner);
+        cauldronManager.createCauldron(c1);
+
+        manager.boilSinnerInCauldron(sinner, c1);
+        Cauldron c2 = manager.findCauldronWithSinner(sinner);
+        manager.releaseSinnerFromCauldron(sinner);
+        Cauldron c3 = manager.findCauldronWithSinner(sinner);
+
+        assertThat("Sinner was found in a cauldron after release." , c3, is(equalTo(null)));
+        assertThat("Cauldron where was sinner boiled is the same instance " +
+                "as the one where he was find after release method.", c2, is(not(sameInstance(c3))));
     }
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Test                                                              //TODO - VYMAZ MA A DOKONCI TO
-    public void boilSinnerInCauldronFullCauldron() throws Exception {  //presunul som to sem, lebo musia byt v databaze
-        Sinner sinner1 = newSinner("Joe", "Doe", "murder", null, true); //a nechcelo sa mi to konfigurovat kvoli jednemu testu
-        sinner1.setId(1L);
+    @Test
+    public void boilSinnerInCauldronFullCauldron() throws Exception {
+        Sinner sinner1 = newSinner("Joe", "Doe", "murder", null, true);
         Sinner sinner2 = newSinner("Jack", "Black", "murder", null, true);
-        sinner2.setId(2L);
         Cauldron cauldron = newCauldron(1, 1, 32);
-        cauldron.setId(1L);
+
+        sinnerManager.createSinner(sinner1);
+        sinnerManager.createSinner(sinner2);
+        cauldronManager.createCauldron(cauldron);
 
         manager.boilSinnerInCauldron(sinner1, cauldron);
 
-        thrown.expect(IllegalArgumentException.class);
+        thrown.expect(IllegalEntityException.class);
         thrown.expectMessage(allOf(containsString("Cauldron"), containsString("full")));
         manager.boilSinnerInCauldron(sinner2, cauldron);
     }

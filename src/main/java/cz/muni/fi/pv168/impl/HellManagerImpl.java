@@ -69,7 +69,7 @@ public class HellManagerImpl implements HellManager {
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement st = connection.prepareStatement("SELECT cauldron.id, cauldron.capacity, " +
-                     "cauldron.waterTemperature, cauldron.hellFloor FROM sinner LEFT JOIN cauldron ON " +
+                     "cauldron.waterTemperature, cauldron.hellFloor FROM cauldron JOIN sinner ON " +
                      "sinner.cauldronId = cauldron.id AND sinner.id = ?")) {
             st.setLong(1, sinner.getId());
 
@@ -188,7 +188,10 @@ public class HellManagerImpl implements HellManager {
         sinner.setFirstName(rs.getString("firstName"));
         sinner.setLastName(rs.getString("lastName"));
         sinner.setSin(rs.getString("sin"));
-        sinner.setReleaseDate(rs.getDate("releaseDate").toLocalDate());
+        if (sinner.getReleaseDate() != null) {
+            sinner.setReleaseDate(rs.getDate("releaseDate").toLocalDate());
+        }
+        else sinner.setReleaseDate(null);
         sinner.setSignedContractWithDevil(rs.getBoolean("signedContract"));
 
         return sinner;

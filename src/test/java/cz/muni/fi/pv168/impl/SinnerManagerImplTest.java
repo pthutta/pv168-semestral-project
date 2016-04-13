@@ -11,13 +11,10 @@ import cz.muni.fi.pv168.common.DBUtils;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import javax.sql.DataSource;
 
-import static java.time.Month.FEBRUARY;
 import static java.time.Month.MARCH;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
