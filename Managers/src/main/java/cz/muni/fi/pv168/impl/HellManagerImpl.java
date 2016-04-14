@@ -23,6 +23,13 @@ public class HellManagerImpl implements HellManager {
 
     private DataSource dataSource;
 
+    public HellManagerImpl() {
+    }
+
+    public HellManagerImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }

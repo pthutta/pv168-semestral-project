@@ -18,6 +18,14 @@ public class CauldronManagerImpl implements CauldronManager {
 
     private DataSource dataSource;
 
+    public CauldronManagerImpl() {
+
+    }
+
+    public CauldronManagerImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }

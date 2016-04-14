@@ -27,6 +27,11 @@ public class SinnerManagerImpl implements SinnerManager {
         this.clock = clock;
     }
 
+    public SinnerManagerImpl(DataSource dataSource, Clock clock) {
+        this.dataSource = dataSource;
+        this.clock = clock;
+    }
+
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
