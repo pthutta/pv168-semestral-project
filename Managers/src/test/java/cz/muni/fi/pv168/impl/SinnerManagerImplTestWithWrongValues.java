@@ -15,7 +15,7 @@ import org.junit.rules.ExpectedException;
 
 import javax.sql.DataSource;
 
-import static java.time.Month.FEBRUARY;
+import static java.time.Month.MARCH;
 import static org.hamcrest.CoreMatchers.*;
 
 /**
@@ -27,7 +27,7 @@ public class SinnerManagerImplTestWithWrongValues {
     private DataSource ds;
     private SinnerManagerImpl manager;
     private final static ZonedDateTime NOW
-            = LocalDateTime.of(2016, FEBRUARY, 29, 14, 00).atZone(ZoneId.of("UTC"));
+            = LocalDateTime.of(2016, MARCH, 29, 14, 00).atZone(ZoneId.of("UTC"));
 
     private static DataSource prepareDataSource() {
         EmbeddedDataSource ds = new EmbeddedDataSource();

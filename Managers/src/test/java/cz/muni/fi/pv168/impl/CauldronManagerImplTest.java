@@ -1,7 +1,6 @@
 package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Cauldron;
-import cz.muni.fi.pv168.CauldronManager;
 import cz.muni.fi.pv168.common.DBUtils;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.junit.After;
@@ -9,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-import java.net.URL;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;

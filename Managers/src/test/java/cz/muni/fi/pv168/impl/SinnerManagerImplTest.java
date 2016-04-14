@@ -46,12 +46,11 @@ public class SinnerManagerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        ds = null;
         ds = prepareDataSource();
-        ClassLoader classLoader = getClass().getClassLoader();
-        DBUtils.executeSqlScript(ds, classLoader.getResource("scripts/createTables.sql"));
         manager = new SinnerManagerImpl(prepareClockMock(NOW));
         manager.setDataSource(ds);
+        ClassLoader classLoader = getClass().getClassLoader();
+        DBUtils.executeSqlScript(ds, classLoader.getResource("scripts/createTables.sql"));
     }
 
     @After

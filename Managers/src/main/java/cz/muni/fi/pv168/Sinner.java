@@ -1,8 +1,5 @@
 package cz.muni.fi.pv168;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-import com.sun.xml.internal.bind.v2.runtime.IllegalAnnotationException;
-
 import java.time.LocalDate;
 
 /**

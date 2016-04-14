@@ -1,7 +1,6 @@
 package cz.muni.fi.pv168.impl;
 
 import cz.muni.fi.pv168.Cauldron;
-import cz.muni.fi.pv168.HellManager;
 import cz.muni.fi.pv168.Sinner;
 import cz.muni.fi.pv168.common.DBUtils;
 import org.apache.derby.jdbc.EmbeddedDataSource;
