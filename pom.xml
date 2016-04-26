@@ -12,6 +12,7 @@
     <modules>
         <module>Managers</module>
         <module>Web application</module>
+        <module>untitled</module>
     </modules>
 
     <properties>
