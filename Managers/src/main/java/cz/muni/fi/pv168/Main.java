@@ -19,7 +19,8 @@ public class Main {
         dataSource.setDriverClassName(EmbeddedDriver.class.getName());
         dataSource.setUrl("jdbc:derby:memory:hellDB;create=true");
 
-        new ResourceDatabasePopulator( new ClassPathResource("scripts/createTables.sql")).execute(dataSource);
+        new ResourceDatabasePopulator( new ClassPathResource("scripts/createTables.sql"),
+                new ClassPathResource("scripts/fillTables.sql")).execute(dataSource);
         return dataSource;
     }
 
