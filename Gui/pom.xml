@@ -13,10 +13,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jdatepicker</groupId>
-            <artifactId>jdatepicker</artifactId>
-            <version>1.3.4</version>
-            <scope>test</scope>
+            <groupId>no.tornado.databinding</groupId>
+            <artifactId>jxdatepicker-support</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 

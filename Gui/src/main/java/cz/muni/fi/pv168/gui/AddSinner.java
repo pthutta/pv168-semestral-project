@@ -1,7 +1,11 @@
 package cz.muni.fi.pv168.gui;
 
+import org.jdesktop.swingx.JXDatePicker;
+
 import javax.swing.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class AddSinner extends JDialog {
     private JPanel contentPane;
@@ -10,8 +14,8 @@ public class AddSinner extends JDialog {
     private JTextField textField1;
     private JTextField textField2;
     private JTextField textField3;
-    private JTextField textField4;
     private JCheckBox signedContractWithDevilCheckBox;
+    private JXDatePicker JXDatePicker1;
 
     public AddSinner() {
         setContentPane(contentPane);
@@ -47,8 +51,15 @@ public class AddSinner extends JDialog {
         signedContractWithDevilCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(signedContractWithDevilCheckBox.isSelected()) textField4.setEnabled(false);
-                if(!signedContractWithDevilCheckBox.isSelected()) textField4.setEnabled(true);
+                if(signedContractWithDevilCheckBox.isSelected()) JXDatePicker1.setEnabled(false);
+                if(!signedContractWithDevilCheckBox.isSelected()) JXDatePicker1.setEnabled(true);
+            }
+        });
+        JXDatePicker1.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (JXDatePicker1.getDate() == null ) signedContractWithDevilCheckBox.setEnabled(true);
+                else signedContractWithDevilCheckBox.setEnabled(false);
             }
         });
     }
@@ -61,5 +72,9 @@ public class AddSinner extends JDialog {
     private void onCancel() {
 // add your code here if necessary
         dispose();
+    }
+
+    private void createUIComponents() {
+        JXDatePicker1 = new JXDatePicker();
     }
 }
