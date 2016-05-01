@@ -1,5 +1,7 @@
 package cz.muni.fi.pv168.gui;
 
+import org.jdesktop.swingx.JXDatePicker;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,6 +15,29 @@ public class MainForm {
     private JButton sinnersButton;
     private JButton cauldronsButton;
     private JButton exitButton;
+    private JTabbedPane tabbedPane1;
+    private JTable table1;
+    private JButton addSinnerButton;
+    private JButton deleteButton;
+    private JTextField textFieldFirstName;
+    private JTextField textFieldSin;
+    private JTextField textFieldLastName;
+    private JCheckBox signedContractWithDevilCheckBox;
+    private JXDatePicker releaseDate;
+    private JTable table2;
+    private JButton deleteButton1;
+    private JTable table3;
+    private JButton releaseSinnerButton;
+    private JButton boilSinnerButton;
+    private JTextField textFieldCapacity;
+    private JTextField textFieldWaterTemperature;
+    private JTextField textFieldHellFloor;
+    private JButton addCauldronButton;
+    private JPanel MainJPanel;
+    private JLabel correctionLabelSinner;
+    private JLabel correctionLabelCauldron;
+    private JLabel infoLabelSinner;
+    private JLabel infoLabelCauldron;
 
     public MainForm() {
         exitButton.addActionListener(new ActionListener() {
@@ -21,26 +46,55 @@ public class MainForm {
                 System.exit(1);
             }
         });
-        sinnersButton.addActionListener(new ActionListener() {
+        signedContractWithDevilCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Sinners dialog = new Sinners();
-                dialog.pack();
-                dialog.setVisible(true);
+                if(signedContractWithDevilCheckBox.isSelected()) releaseDate.setEnabled(false);
+                if(!signedContractWithDevilCheckBox.isSelected()) releaseDate.setEnabled(true);
             }
         });
-        cauldronsButton.addActionListener(new ActionListener() {
+        addSinnerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Cauldrons dialog = new Cauldrons();
-                dialog.pack();
-                dialog.setVisible(true);
+                correctionLabelSinner.setText("Correct");
+                correctionLabelSinner.setForeground(Color.GREEN);
+                if(textFieldFirstName.getText().isEmpty()){
+                    correctionLabelSinner.setText("Please input first name");
+                    correctionLabelSinner.setForeground(Color.RED);
+                }
+                if(textFieldLastName.getText().isEmpty()){
+                    correctionLabelSinner.setText("Please input last name");
+                    correctionLabelSinner.setForeground(Color.RED);
+                }
+                if(textFieldSin.getText().isEmpty()){
+                    correctionLabelSinner.setText("Please input sin");
+                    correctionLabelSinner.setForeground(Color.RED);
+                }
+                if (!signedContractWithDevilCheckBox.isSelected() || !releaseDate.isValid()){
+                    correctionLabelSinner.setText("Please input signed contract or release date");
+                    correctionLabelSinner.setForeground(Color.RED);
+                }
             }
         });
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
+        addCauldronButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                correctionLabelCauldron.setText("Correct");
+                correctionLabelCauldron.setForeground(Color.GREEN);
+                if(textFieldCapacity.getText().isEmpty()){
+                    correctionLabelCauldron.setText("Please input capacity");
+                    correctionLabelCauldron.setForeground(Color.RED);
+                }
+                if(textFieldWaterTemperature.getText().isEmpty()){
+                    correctionLabelCauldron.setText("Please input water temperature");
+                    correctionLabelCauldron.setForeground(Color.RED);
+                }
+                if(textFieldHellFloor.getText().isEmpty()){
+                    correctionLabelCauldron.setText("Please input hell floor");
+                    correctionLabelCauldron.setForeground(Color.RED);
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {
@@ -49,11 +103,15 @@ public class MainForm {
             public void run() {
                 JFrame frame = new JFrame("Hell Manager");
                 frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-                frame.setContentPane(new MainForm().panel1);
+                frame.setContentPane(new MainForm().MainJPanel);
                 frame.setPreferredSize(new Dimension(800,600));
                 frame.pack();
                 frame.setVisible(true);
             }
         });
+    }
+
+    private void createUIComponents() {
+        releaseDate = new JXDatePicker();
     }
 }
