@@ -142,7 +142,7 @@
                   </grid>
                 </children>
               </grid>
-              <grid id="cceb8" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="cceb8" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="0" row-span="5" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -150,22 +150,27 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="c946" class="javax.swing.JTable" binding="table1" default-binding="true">
-                    <constraints>
-                      <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                        <preferred-size width="150" height="50"/>
-                      </grid>
-                    </constraints>
-                    <properties/>
-                  </component>
                   <component id="608a0" class="javax.swing.JButton" binding="deleteButton" default-binding="true">
                     <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text value="Delete"/>
                     </properties>
                   </component>
+                  <scrollpane id="5dc9e">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="c946" class="javax.swing.JTable" binding="sinnersTable" custom-create="true">
+                        <constraints/>
+                        <properties/>
+                      </component>
+                    </children>
+                  </scrollpane>
                 </children>
               </grid>
               <vspacer id="e9929">
@@ -209,15 +214,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="3132a" class="javax.swing.JTable" binding="table2" default-binding="true">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                        <preferred-size width="150" height="50"/>
-                      </grid>
-                    </constraints>
-                    <properties/>
-                  </component>
-                  <component id="62e2d" class="javax.swing.JButton" binding="deleteButton1" default-binding="true">
+                  <component id="62e2d" class="javax.swing.JButton" binding="deleteCauldronButton">
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -225,6 +222,25 @@
                       <text value="Delete"/>
                     </properties>
                   </component>
+                  <scrollpane id="83f25">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="3132a" class="javax.swing.JTable" binding="cauldronsTable" custom-create="true">
+                        <constraints/>
+                        <properties>
+                          <autoCreateRowSorter value="false"/>
+                        </properties>
+                        <clientProperties>
+                          <JTable.autoStartsEdit class="java.lang.Boolean" value="false"/>
+                          <Table.isFileList class="java.lang.Boolean" value="false"/>
+                        </clientProperties>
+                      </component>
+                    </children>
+                  </scrollpane>
                 </children>
               </grid>
               <grid id="25bb5" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
