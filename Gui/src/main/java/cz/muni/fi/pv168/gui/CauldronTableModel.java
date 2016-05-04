@@ -115,7 +115,6 @@ public class CauldronTableModel extends AbstractTableModel {
 
     public void removeCauldron(long id) {
         cauldrons.removeIf((Cauldron c) -> c.getId() == id);
-        int lastRow = cauldrons.size() + 1;
-        fireTableRowsInserted(lastRow, lastRow);
+        fireTableRowsDeleted(cauldrons.size(), cauldrons.size());
     }
 }

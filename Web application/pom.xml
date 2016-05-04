@@ -42,6 +42,16 @@
             <artifactId>managers</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>cz.muni.fi.pv168</groupId>
+            <artifactId>managers</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>cz.muni.fi.pv168</groupId>
+            <artifactId>managers</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

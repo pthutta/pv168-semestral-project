@@ -110,11 +110,36 @@ public class SinnerTableModel extends AbstractTableModel {
         }
     }
 
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        switch (columnIndex) {
+            case 0:
+                return Long.class;
+            case 1:
+            case 2:
+            case 3:
+                return String.class;
+            case 4:
+                return LocalDate.class;
+            case 5:
+                return Boolean.class;
+            default:
+                throw new IllegalArgumentException("columnIndex");
+        }
+    }
+
     public void addSinner(Sinner sinner) {
         sinners.add(sinner);
         int lastRow = sinners.size() - 1;
         fireTableRowsInserted(lastRow, lastRow);
     }
 
-    //TODO delete + column class
+    public void removeSinner(long id) {
+        sinners.removeIf((Sinner c) -> c.getId() == id);
+        fireTableRowsDeleted(sinners.size(), sinners.size());
+    }
+
+    public List<Sinner> getAllSinners() {
+        return sinners;
+    }
 }

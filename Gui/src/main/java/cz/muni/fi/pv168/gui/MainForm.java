@@ -8,12 +8,16 @@ import cz.muni.fi.pv168.impl.CauldronManagerImpl;
 import cz.muni.fi.pv168.impl.HellManagerImpl;
 import cz.muni.fi.pv168.impl.SinnerManagerImpl;
 import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.JXTable;
 
 import javax.sql.DataSource;
 import javax.swing.*;
+import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.time.Clock;
 import java.time.ZoneId;
 
@@ -32,7 +36,7 @@ public class MainForm {
     private JTabbedPane tabbedPane1;
     private JTable sinnersTable;
     private JButton addSinnerButton;
-    private JButton deleteButton;
+    private JButton deleteSinnerButton;
     private JTextField textFieldFirstName;
     private JTextField textFieldSin;
     private JTextField textFieldLastName;
@@ -40,7 +44,7 @@ public class MainForm {
     private JXDatePicker releaseDate;
     private JTable cauldronsTable;
     private JButton deleteCauldronButton;
-    private JTable table3;
+    private JTable sinnerCauldronTable;
     private JButton releaseSinnerButton;
     private JButton boilSinnerButton;
     private JTextField textFieldCapacity;
@@ -174,6 +178,57 @@ public class MainForm {
                 }
             }
         });
+        releaseSinnerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = sinnerCauldronTable.getSelectedRow();
+                if(selectedRow != -1) {
+                    try {
+                        long sinnerId = (long) sinnerCauldronTable.getValueAt(selectedRow, 0);
+                        hellManager.releaseSinnerFromCauldron(sinnerManager.findSinnerById(sinnerId));
+                        SinnerCauldronTableModel model = (SinnerCauldronTableModel) sinnerCauldronTable.getModel();
+                        model.removeRelation(sinnerId);
+                    } catch (ServiceFailureException ex) {
+                        correctionLabelCauldron.setText("Cannot delete relation");
+                        correctionLabelCauldron.setForeground(Color.RED);
+                    } catch (IllegalArgumentException ex) {
+                        correctionLabelCauldron.setText(ex.getMessage());
+                        correctionLabelCauldron.setForeground(Color.RED);
+                    }
+                }
+            }
+        });
+        deleteSinnerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = sinnersTable.getSelectedRow();
+                if(selectedRow != -1) {
+                    try {
+                        long id = (long) sinnersTable.getValueAt(selectedRow, 0);
+                        sinnerManager.deleteSinner(sinnerManager.findSinnerById(id));
+                        SinnerTableModel model = (SinnerTableModel) sinnersTable.getModel();
+                        model.removeSinner(id);
+                    } catch (ServiceFailureException ex) {
+                        correctionLabelCauldron.setText("Cannot delete sinner");
+                        correctionLabelCauldron.setForeground(Color.RED);
+                    }
+                }
+            }
+        });
+
+
+        sinnersTable.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                TableCellEditor tce = sinnersTable.getCellEditor();
+                if(tce != null) {
+                    SinnerTableModel model = (SinnerTableModel) sinnersTable.getModel();
+                    for (Sinner sinner : model.getAllSinners()) {
+                        sinnerManager.updateSinner(sinner);
+                    } //TODO ???
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {
@@ -200,17 +255,23 @@ public class MainForm {
         sinnerManager = new SinnerManagerImpl(dataSource, Clock.systemDefaultZone());
 
         CauldronTableModel cauldronTableModel = new CauldronTableModel();
-        for(Cauldron cauldron : cauldronManager.findAllCauldrons()){
-            cauldronTableModel.addCauldron(cauldron);
-        }
+        java.util.List<Cauldron> allCauldrons = cauldronManager.findAllCauldrons();
+        allCauldrons.forEach(cauldronTableModel::addCauldron);
         cauldronsTable = new JTable(cauldronTableModel);
 
         SinnerTableModel sinnerTableModel = new SinnerTableModel();
-        for(Sinner sinner : sinnerManager.findAllSinners()){
-            sinnerTableModel.addSinner(sinner);
-        }
+        sinnerManager.findAllSinners().forEach(sinnerTableModel::addSinner);
         sinnersTable = new JTable(sinnerTableModel);
+
+        SinnerCauldronTableModel sinCaulTableModel = new SinnerCauldronTableModel();
+        for (Cauldron cauldron : allCauldrons) {
+            for (Sinner sinner : hellManager.findSinnersInCauldron(cauldron)) {
+                Relation relation = new Relation(sinner, cauldron);
+                sinCaulTableModel.addRelation(relation);
+            }
+        }
+        sinnerCauldronTable = new JXTable(sinCaulTableModel);
     }
 
-    //TODO deltovat sinnera + celou tabulku topeni v kotli + čudlíky
+    //TODO update databazy, dokoncit tabulku topeni v kotli, refresh tabulek
 }
