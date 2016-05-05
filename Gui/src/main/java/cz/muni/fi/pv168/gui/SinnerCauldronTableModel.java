@@ -29,7 +29,7 @@ public class SinnerCauldronTableModel extends AbstractTableModel {
             case 0:
                 return relation.getSinnerId();
             case 1:
-                return relation.getFullName();
+                return relation.getSinnerName();
             case 2:
                 return relation.getCauldronId();
             default:
@@ -43,7 +43,7 @@ public class SinnerCauldronTableModel extends AbstractTableModel {
             case 0:
                 return "Sinner Id";
             case 1:
-                return "Full Name";
+                return "Sinner Name";
             case 2:
                 return "Cauldron Id";
             default:
@@ -60,5 +60,10 @@ public class SinnerCauldronTableModel extends AbstractTableModel {
     public void removeRelation(long sinnerId) {
         relations.removeIf((Relation c) -> c.getSinnerId() == sinnerId);
         fireTableRowsDeleted(relations.size(),relations.size());
+    }
+
+    public void clearTable() {
+        relations.clear();
+        fireTableDataChanged();
     }
 }

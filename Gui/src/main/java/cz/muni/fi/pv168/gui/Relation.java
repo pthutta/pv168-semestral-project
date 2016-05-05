@@ -1,31 +1,30 @@
 package cz.muni.fi.pv168.gui;
 
-import cz.muni.fi.pv168.Cauldron;
-import cz.muni.fi.pv168.Sinner;
-
 /**
  * @author Peter Hutta
  * @version 1.0  3.5.2016
  */
 public class Relation {
 
-    private Sinner sinner;
-    private Cauldron cauldron;
+    private long sinnerId;
+    private String sinnerName;
+    private long cauldronId;
 
-    public Relation(Sinner sinner, Cauldron cauldron) {
-        this.sinner = sinner;
-        this.cauldron = cauldron;
+    public Relation(long sinnerId, String sinnerName, long cauldronId) {
+        this.sinnerId = sinnerId;
+        this.sinnerName = sinnerName;
+        this.cauldronId = cauldronId;
     }
 
     public long getSinnerId() {
-        return sinner.getId();
+        return sinnerId;
     }
 
-    public String getFullName() {
-        return sinner.getFirstName() + " " + sinner.getLastName();
+    public String getSinnerName() {
+        return sinnerName;
     }
 
     public long getCauldronId() {
-        return cauldron.getId();
+        return cauldronId;
     }
 }

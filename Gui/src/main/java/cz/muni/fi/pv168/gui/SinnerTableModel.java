@@ -142,4 +142,6 @@ public class SinnerTableModel extends AbstractTableModel {
     public List<Sinner> getAllSinners() {
         return sinners;
     }
+
+
 }

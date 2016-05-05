@@ -9,16 +9,21 @@ import cz.muni.fi.pv168.impl.HellManagerImpl;
 import cz.muni.fi.pv168.impl.SinnerManagerImpl;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.table.DatePickerCellEditor;
 
 import javax.sql.DataSource;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.text.DateFormat;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.ZoneId;
 
 /**
@@ -216,16 +221,26 @@ public class MainForm {
             }
         });
 
-
         sinnersTable.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                TableCellEditor tce = sinnersTable.getCellEditor();
-                if(tce != null) {
-                    SinnerTableModel model = (SinnerTableModel) sinnersTable.getModel();
+                SinnerTableModel model = (SinnerTableModel) sinnersTable.getModel();
+                try {
                     for (Sinner sinner : model.getAllSinners()) {
                         sinnerManager.updateSinner(sinner);
                     } //TODO ???
+                } catch (IllegalArgumentException ex) {
+                    correctionLabelSinner.setText(ex.getMessage());
+                    correctionLabelSinner.setForeground(Color.RED);
+                }
+            }
+        });
+        tabbedPane1.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (tabbedPane1.getSelectedIndex() == 1) {
+                    refreshSinnerCauldronTable((SinnerCauldronTableModel)sinnerCauldronTable.getModel());
+                    //TODO refresh, iba ak bola zmena v databaze
                 }
             }
         });
@@ -239,7 +254,7 @@ public class MainForm {
                 JFrame frame = new JFrame("Hell Manager");
                 frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 frame.setContentPane(new MainForm().MainJPanel);
-                frame.setPreferredSize(new Dimension(800,600));
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 frame.pack();
                 frame.setVisible(true);
             }
@@ -255,23 +270,29 @@ public class MainForm {
         sinnerManager = new SinnerManagerImpl(dataSource, Clock.systemDefaultZone());
 
         CauldronTableModel cauldronTableModel = new CauldronTableModel();
-        java.util.List<Cauldron> allCauldrons = cauldronManager.findAllCauldrons();
-        allCauldrons.forEach(cauldronTableModel::addCauldron);
+        cauldronManager.findAllCauldrons().forEach(cauldronTableModel::addCauldron);
         cauldronsTable = new JTable(cauldronTableModel);
 
         SinnerTableModel sinnerTableModel = new SinnerTableModel();
         sinnerManager.findAllSinners().forEach(sinnerTableModel::addSinner);
         sinnersTable = new JTable(sinnerTableModel);
+        sinnersTable.setDefaultRenderer(LocalDate.class, FormatRenderer.getDateTimeRenderer());
+        sinnersTable.getColumnModel().getColumn(4).setCellEditor(new DatePickerCellEditor());
 
         SinnerCauldronTableModel sinCaulTableModel = new SinnerCauldronTableModel();
-        for (Cauldron cauldron : allCauldrons) {
-            for (Sinner sinner : hellManager.findSinnersInCauldron(cauldron)) {
-                Relation relation = new Relation(sinner, cauldron);
-                sinCaulTableModel.addRelation(relation);
-            }
-        }
+        refreshSinnerCauldronTable(sinCaulTableModel);
         sinnerCauldronTable = new JXTable(sinCaulTableModel);
     }
 
-    //TODO update databazy, dokoncit tabulku topeni v kotli, refresh tabulek
+    private void refreshSinnerCauldronTable(SinnerCauldronTableModel sinCaulTableModel) {
+        sinCaulTableModel.clearTable();
+        for (Cauldron cauldron : cauldronManager.findAllCauldrons()) {
+            for (Sinner sinner : hellManager.findSinnersInCauldron(cauldron)) {
+                Relation relation = new Relation(sinner.getId(), sinner.getFirstName() + " " + sinner.getLastName(), cauldron.getId());
+                sinCaulTableModel.addRelation(relation);
+            }
+        }
+    }
+
+    //TODO update databazy real time/save button, tabulku topeni v kotli, jeji refreshnuti pomoci id-cek zmenenych sinneru(?), hazeni do kotle
 }
