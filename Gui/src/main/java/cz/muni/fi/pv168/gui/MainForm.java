@@ -3,6 +3,7 @@ package cz.muni.fi.pv168.gui;
 import cz.muni.fi.pv168.Cauldron;
 import cz.muni.fi.pv168.Main;
 import cz.muni.fi.pv168.Sinner;
+import cz.muni.fi.pv168.exceptions.IllegalEntityException;
 import cz.muni.fi.pv168.exceptions.ServiceFailureException;
 import cz.muni.fi.pv168.impl.CauldronManagerImpl;
 import cz.muni.fi.pv168.impl.HellManagerImpl;
@@ -13,15 +14,11 @@ import org.jdesktop.swingx.table.DatePickerCellEditor;
 
 import javax.sql.DataSource;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.text.DateFormat;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -119,6 +116,7 @@ public class MainForm {
 
                     SinnerTableModel model = (SinnerTableModel) sinnersTable.getModel();
                     model.addSinner(sinner);
+                    refreshSinnerCauldronTable((SinnerCauldronTableModel)sinnerCauldronTable.getModel());
                 }catch(NumberFormatException ex){
                     correctionLabelCauldron.setText("Cant parse given input: " + ex.getMessage());
                     correctionLabelCauldron.setForeground(Color.RED);
@@ -192,7 +190,7 @@ public class MainForm {
                         long sinnerId = (long) sinnerCauldronTable.getValueAt(selectedRow, 0);
                         hellManager.releaseSinnerFromCauldron(sinnerManager.findSinnerById(sinnerId));
                         SinnerCauldronTableModel model = (SinnerCauldronTableModel) sinnerCauldronTable.getModel();
-                        model.removeRelation(sinnerId);
+                        model.releaseSinner(sinnerId);
                     } catch (ServiceFailureException ex) {
                         correctionLabelCauldron.setText("Cannot delete relation");
                         correctionLabelCauldron.setForeground(Color.RED);
@@ -213,6 +211,7 @@ public class MainForm {
                         sinnerManager.deleteSinner(sinnerManager.findSinnerById(id));
                         SinnerTableModel model = (SinnerTableModel) sinnersTable.getModel();
                         model.removeSinner(id);
+                        refreshSinnerCauldronTable((SinnerCauldronTableModel)sinnerCauldronTable.getModel());
                     } catch (ServiceFailureException ex) {
                         correctionLabelCauldron.setText("Cannot delete sinner");
                         correctionLabelCauldron.setForeground(Color.RED);
@@ -228,19 +227,44 @@ public class MainForm {
                 try {
                     for (Sinner sinner : model.getAllSinners()) {
                         sinnerManager.updateSinner(sinner);
-                    } //TODO ???
+                    }
                 } catch (IllegalArgumentException ex) {
                     correctionLabelSinner.setText(ex.getMessage());
                     correctionLabelSinner.setForeground(Color.RED);
                 }
+                refreshSinnerCauldronTable((SinnerCauldronTableModel)sinnerCauldronTable.getModel());
             }
         });
-        tabbedPane1.addChangeListener(new ChangeListener() {
+        boilSinnerButton.addActionListener(new ActionListener() {
             @Override
-            public void stateChanged(ChangeEvent e) {
-                if (tabbedPane1.getSelectedIndex() == 1) {
-                    refreshSinnerCauldronTable((SinnerCauldronTableModel)sinnerCauldronTable.getModel());
-                    //TODO refresh, iba ak bola zmena v databaze
+            public void actionPerformed(ActionEvent e) {
+                int selectedCauldronRow = cauldronsTable.getSelectedRow();
+                if (selectedCauldronRow == -1) {
+                    correctionLabelCauldron.setText("Please, select cauldron.");
+                    correctionLabelCauldron.setForeground(Color.RED);
+                }
+
+                int selectedSinnerRow = sinnerCauldronTable.getSelectedRow();
+                if (selectedSinnerRow == -1) {
+                    correctionLabelCauldron.setText("Please, select sinner");
+                    correctionLabelCauldron.setForeground(Color.RED);
+                }
+
+                try {
+                    long sinnerId = (long) sinnerCauldronTable.getValueAt(selectedSinnerRow, 0);
+                    long cauldronId = (long) cauldronsTable.getValueAt(selectedCauldronRow, 0);
+
+                    Sinner sinner = sinnerManager.findSinnerById(sinnerId);
+                    Cauldron cauldron = cauldronManager.findCauldronById(cauldronId);
+
+                    hellManager.boilSinnerInCauldron(sinner, cauldron);
+                    SinnerCauldronTableModel model = (SinnerCauldronTableModel)sinnerCauldronTable.getModel();
+                    Relation relation = new Relation(sinner.getId(), sinner.getFirstName() + " " + sinner.getLastName(), cauldronId);
+                    model.updateRelation(relation);
+
+                } catch (ServiceFailureException | IllegalEntityException ex ) {
+                    correctionLabelCauldron.setText("Cannot boil sinner in cauldron: " + ex.getMessage());
+                    correctionLabelCauldron.setForeground(Color.RED);
                 }
             }
         });
@@ -286,13 +310,14 @@ public class MainForm {
 
     private void refreshSinnerCauldronTable(SinnerCauldronTableModel sinCaulTableModel) {
         sinCaulTableModel.clearTable();
-        for (Cauldron cauldron : cauldronManager.findAllCauldrons()) {
-            for (Sinner sinner : hellManager.findSinnersInCauldron(cauldron)) {
-                Relation relation = new Relation(sinner.getId(), sinner.getFirstName() + " " + sinner.getLastName(), cauldron.getId());
-                sinCaulTableModel.addRelation(relation);
+        for (Sinner sinner : sinnerManager.findAllSinners()) {
+            Cauldron cauldron = hellManager.findCauldronWithSinner(sinner);
+            Long cauldronId = null;
+            if (cauldron != null) {
+                cauldronId = cauldron.getId();
             }
+            Relation relation = new Relation(sinner.getId(), sinner.getFirstName() + " " + sinner.getLastName(), cauldronId);
+            sinCaulTableModel.addRelation(relation);
         }
     }
-
-    //TODO update databazy real time/save button, tabulku topeni v kotli, jeji refreshnuti pomoci id-cek zmenenych sinneru(?), hazeni do kotle
 }

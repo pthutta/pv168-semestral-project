@@ -51,15 +51,31 @@ public class SinnerCauldronTableModel extends AbstractTableModel {
         }
     }
 
-    public void addRelation(Relation cauldron) {
-        relations.add(cauldron);
+    public void addRelation(Relation relation) {
+        relations.add(relation);
         int lastRow = relations.size() - 1;
         fireTableRowsInserted(lastRow, lastRow);
     }
 
-    public void removeRelation(long sinnerId) {
-        relations.removeIf((Relation c) -> c.getSinnerId() == sinnerId);
-        fireTableRowsDeleted(relations.size(),relations.size());
+    public void releaseSinner(Long sinnerId) {
+        for (Relation rel : relations) {
+            if (rel.getSinnerId().equals(sinnerId)) {
+                rel.setCauldronId(null);
+                break;
+            }
+        }
+        fireTableDataChanged();
+    }
+
+    public void updateRelation(Relation relation) {
+        for (Relation rel : relations) {
+                if (rel.getSinnerId() == relation.getSinnerId()) {
+                    rel.setSinnerName(relation.getSinnerName());
+                    rel.setCauldronId(relation.getCauldronId());
+                    break;
+                }
+        }
+        fireTableDataChanged();
     }
 
     public void clearTable() {

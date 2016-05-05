@@ -177,7 +177,7 @@ public class HellManagerImpl implements HellManager {
             ResultSet rs = checkSt.executeQuery();
             if (rs.next()) {
                 if (rs.getInt("capacity") <= rs.getInt("sinnerCount")) {
-                    throw new IllegalEntityException("Cauldron " + cauldron + " is already full");
+                    throw new IllegalEntityException("Cauldron is already full");
                 }
             } else {
                 throw new IllegalEntityException("Cauldron " + cauldron + " does not exist in the database");

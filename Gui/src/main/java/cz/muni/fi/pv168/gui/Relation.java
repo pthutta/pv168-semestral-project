@@ -6,17 +6,17 @@ package cz.muni.fi.pv168.gui;
  */
 public class Relation {
 
-    private long sinnerId;
+    private Long sinnerId;
     private String sinnerName;
-    private long cauldronId;
+    private Long cauldronId;
 
-    public Relation(long sinnerId, String sinnerName, long cauldronId) {
+    public Relation(Long sinnerId, String sinnerName, Long cauldronId) {
         this.sinnerId = sinnerId;
         this.sinnerName = sinnerName;
         this.cauldronId = cauldronId;
     }
 
-    public long getSinnerId() {
+    public Long getSinnerId() {
         return sinnerId;
     }
 
@@ -24,7 +24,19 @@ public class Relation {
         return sinnerName;
     }
 
-    public long getCauldronId() {
+    public Long getCauldronId() {
         return cauldronId;
+    }
+
+    public void setSinnerId(Long sinnerId) {
+        this.sinnerId = sinnerId;
+    }
+
+    public void setSinnerName(String sinnerName) {
+        this.sinnerName = sinnerName;
+    }
+
+    public void setCauldronId(Long cauldronId) {
+        this.cauldronId = cauldronId;
     }
 }
