@@ -141,9 +141,6 @@ public class HellManagerImpl implements HellManager {
         if (sinner.getId() == null) {
             throw new IllegalArgumentException("Sinner id is null");
         }
-        if (sinner.isSignedContractWithDevil()) {
-            throw new IllegalArgumentException("Contract was signed, cannot release sinner from cauldron");
-        }
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement st = connection.prepareStatement("UPDATE sinner SET cauldronId = NULL WHERE id = ?")) {

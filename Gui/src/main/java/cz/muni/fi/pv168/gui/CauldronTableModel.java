@@ -117,4 +117,8 @@ public class CauldronTableModel extends AbstractTableModel {
         cauldrons.removeIf((Cauldron c) -> c.getId() == id);
         fireTableRowsDeleted(cauldrons.size(), cauldrons.size());
     }
+
+    public List<Cauldron> getAllCauldrons() {
+        return cauldrons;
+    }
 }

@@ -66,6 +66,7 @@ public class CauldronManagerImpl implements CauldronManager {
         if (cauldron.getId() == null) {
             throw new IllegalArgumentException("Cauldron id is null");
         }
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement st = connection.prepareStatement(
                      "UPDATE CAULDRON SET capacity = ?, waterTemperature = ?, hellFloor = ? WHERE id = ?")) {
