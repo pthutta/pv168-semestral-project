@@ -1,6 +1,8 @@
 package cz.muni.fi.pv168.gui;
 
 import cz.muni.fi.pv168.Cauldron;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
  */
 public class CauldronTableModel extends AbstractTableModel {
 
+    final static Logger log = LoggerFactory.getLogger(CauldronTableModel.class);
     private List<Cauldron> cauldrons = new ArrayList<Cauldron>();
 
     @Override
@@ -37,6 +40,7 @@ public class CauldronTableModel extends AbstractTableModel {
             case 3:
                 return cauldron.getHellFloor();
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }
@@ -53,6 +57,7 @@ public class CauldronTableModel extends AbstractTableModel {
             case 3:
                 return "Hell Floor";
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }
@@ -74,6 +79,7 @@ public class CauldronTableModel extends AbstractTableModel {
                 cauldron.setHellFloor((int)aValue);
                 break;
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
         fireTableCellUpdated(rowIndex, columnIndex);
@@ -89,6 +95,7 @@ public class CauldronTableModel extends AbstractTableModel {
             case 3:
                 return true;
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }
@@ -103,6 +110,7 @@ public class CauldronTableModel extends AbstractTableModel {
             case 3:
                 return Integer.class;
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }

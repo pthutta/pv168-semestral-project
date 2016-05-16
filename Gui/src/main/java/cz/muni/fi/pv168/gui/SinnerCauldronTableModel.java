@@ -1,5 +1,8 @@
 package cz.muni.fi.pv168.gui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +13,7 @@ import java.util.List;
  */
 public class SinnerCauldronTableModel extends AbstractTableModel {
 
+    final static Logger log = LoggerFactory.getLogger(SinnerCauldronTableModel.class);
     private List<Relation> relations = new ArrayList<Relation>();
 
     @Override
@@ -33,6 +37,7 @@ public class SinnerCauldronTableModel extends AbstractTableModel {
             case 2:
                 return relation.getCauldronId();
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }
@@ -47,6 +52,7 @@ public class SinnerCauldronTableModel extends AbstractTableModel {
             case 2:
                 return "Cauldron Id";
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }

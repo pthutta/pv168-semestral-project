@@ -4,6 +4,8 @@ import cz.muni.fi.pv168.Sinner;
 import cz.muni.fi.pv168.SinnerManager;
 import cz.muni.fi.pv168.exceptions.EntityNotFoundException;
 import cz.muni.fi.pv168.exceptions.ServiceFailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -20,6 +22,7 @@ import java.util.List;
  */
 public class SinnerManagerImpl implements SinnerManager {
 
+    final static Logger log = LoggerFactory.getLogger(SinnerManagerImpl.class);
     private DataSource dataSource;
     private final Clock clock;
 
@@ -66,6 +69,9 @@ public class SinnerManagerImpl implements SinnerManager {
 
             ResultSet keyRS = st.getGeneratedKeys();
             sinner.setId(getKey(keyRS, sinner));
+            log.debug("Created new sinner: id = {}, first name = {}, last name = {}, sin = {}, " +
+                    "release date = {}, signed contract = {}", sinner.getId(), sinner.getFirstName(),
+                    sinner.getLastName(), sinner.getSin(), sinner.getReleaseDate(), sinner.isSignedContractWithDevil());
 
         } catch (SQLException ex) {
             throw new ServiceFailureException("Error when inserting sinner " + sinner, ex);
@@ -100,6 +106,10 @@ public class SinnerManagerImpl implements SinnerManager {
             } else if (count != 1) {
                 throw new ServiceFailureException("Invalid updated rows count detected (one row should be updated): " + count);
             }
+            log.debug("Updated sinner: id = {}, first name = {}, last name = {}, sin = {}, " +
+                            "release date = {}, signed contract = {}", sinner.getId(), sinner.getFirstName(),
+                    sinner.getLastName(), sinner.getSin(), sinner.getReleaseDate(), sinner.isSignedContractWithDevil());
+
         } catch (SQLException ex) {
             throw new ServiceFailureException(
                     "Error when updating sinner " + sinner, ex);
@@ -126,6 +136,7 @@ public class SinnerManagerImpl implements SinnerManager {
             } else if (count != 1) {
                 throw new ServiceFailureException("Invalid deleted rows count detected (one row should be updated): " + count);
             }
+            log.debug("Deleted sinner with id = {}", sinner.getId());
         } catch (SQLException ex) {
             throw new ServiceFailureException(
                     "Error when updating cauldron " + sinner, ex);
@@ -153,7 +164,7 @@ public class SinnerManagerImpl implements SinnerManager {
                             "Internal error: More entities with the same id found "
                                     + "(source id: " + id + ", found " + sinner + " and " + resultSetToSinner(rs));
                 }
-
+                log.debug("Sinner with id = {} found in database", id);
                 return sinner;
             } else {
                 return null;

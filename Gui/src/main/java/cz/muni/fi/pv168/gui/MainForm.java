@@ -11,6 +11,8 @@ import cz.muni.fi.pv168.impl.SinnerManagerImpl;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.DatePickerCellEditor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import javax.swing.*;
@@ -30,6 +32,8 @@ import java.util.concurrent.ExecutionException;
  * Created by cechy on 26.04.2016.
  */
 public class MainForm {
+    final static Logger log = LoggerFactory.getLogger(MainForm.class);
+
     private CauldronManagerImpl cauldronManager;
     private HellManagerImpl hellManager;
     private SinnerManagerImpl sinnerManager;
@@ -98,7 +102,9 @@ public class MainForm {
             } catch (ExecutionException ex) {
                 correctionLabelSinner.setText(ex.getCause() + "\n");
                 correctionLabelSinner.setForeground(Color.RED);
+                log.error(ex.getMessage());
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
         }
@@ -129,7 +135,9 @@ public class MainForm {
             } catch (ExecutionException ex) {
                 correctionLabelCauldron.setText(ex.getCause() + "\n");
                 correctionLabelCauldron.setForeground(Color.RED);
+                log.error(ex.getMessage());
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
         }
@@ -161,7 +169,9 @@ public class MainForm {
             } catch (ExecutionException ex) {
                 correctionLabelSinner.setText(ex.getCause() + "\n");
                 correctionLabelSinner.setForeground(Color.RED);
+                log.error(ex.getMessage());
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
         }
@@ -192,7 +202,9 @@ public class MainForm {
             } catch (ExecutionException ex) {
                 correctionLabelCauldron.setText(ex.getCause() + "\n");
                 correctionLabelCauldron.setForeground(Color.RED);
+                log.error(ex.getMessage());
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
         }
@@ -222,7 +234,9 @@ public class MainForm {
             } catch (ExecutionException ex) {
                 correctionLabelSinner.setText(ex.getCause() + "\n");
                 correctionLabelSinner.setForeground(Color.RED);
+                log.error(ex.getMessage());
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
         }
@@ -258,10 +272,12 @@ public class MainForm {
                 refreshSinnerCauldronTable();
 
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             } catch (ExecutionException ex) {
                 correctionLabelCauldron.setText(ex.getCause() + "\n");
                 correctionLabelCauldron.setForeground(Color.RED);
+                log.error(ex.getMessage());
             }
         }
     }
@@ -291,7 +307,9 @@ public class MainForm {
             } catch (ExecutionException ex) {
                 correctionLabelCauldron.setText(ex.getCause() + "\n");
                 correctionLabelCauldron.setForeground(Color.RED);
+                log.error(ex.getMessage());
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
         }
@@ -329,7 +347,9 @@ public class MainForm {
             } catch (ExecutionException ex) {
                 correctionLabelCauldron.setText(ex.getCause() + "\n");
                 correctionLabelCauldron.setForeground(Color.RED);
+                log.error(ex.getMessage());
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
         }
@@ -365,7 +385,9 @@ public class MainForm {
             } catch (ExecutionException ex) {
                 correctionLabelCauldron.setText(ex.getCause() + "\n");
                 correctionLabelCauldron.setForeground(Color.RED);
+                log.error(ex.getMessage());
             } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
                 throw new RuntimeException("Operation interrupted (this should never happen)",ex);
             }
         }
@@ -398,18 +420,22 @@ public class MainForm {
                 if(textFieldFirstName.getText().isEmpty()){
                     correctionLabelSinner.setText("Please input first name");
                     correctionLabelSinner.setForeground(Color.RED);
+                    return;
                 }
                 if(textFieldLastName.getText().isEmpty()){
                     correctionLabelSinner.setText("Please input last name");
                     correctionLabelSinner.setForeground(Color.RED);
+                    return;
                 }
                 if(textFieldSin.getText().isEmpty()){
                     correctionLabelSinner.setText("Please input sin");
                     correctionLabelSinner.setForeground(Color.RED);
+                    return;
                 }
                 if (!signedContractWithDevilCheckBox.isSelected() && (releaseDate.getDate() == null)){
                     correctionLabelSinner.setText("Please input signed contract or release date");
                     correctionLabelSinner.setForeground(Color.RED);
+                    return;
                 }
 
                 //add Sinner
@@ -418,11 +444,13 @@ public class MainForm {
                     sinner.setFirstName(textFieldFirstName.getText());
                     sinner.setLastName(textFieldLastName.getText());
                     sinner.setSin(textFieldSin.getText());
-                    if(releaseDate.getDate() != null)
+                    if(releaseDate.getDate() != null) {
                         sinner.setReleaseDate(releaseDate.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                    }
                     sinner.setSignedContractWithDevil(signedContractWithDevilCheckBox.isSelected());
 
                     if(createSinnerWorker != null) {
+                        log.error("IllegalStateException: Operation 'Create sinner' is in progress");
                         throw new IllegalStateException("Operation is in progress");
                     }
                     addSinnerButton.setEnabled(false);
@@ -431,15 +459,15 @@ public class MainForm {
                     createSinnerWorker.execute();
 
                 } catch(NumberFormatException ex){
-                    correctionLabelCauldron.setText("Cant parse given input: " + ex.getMessage());
+                    correctionLabelCauldron.setText("Can't parse given input: " + ex.getMessage());
                     correctionLabelCauldron.setForeground(Color.RED);
+                    log.error("Can't parse given input: " + ex.getMessage());
                 }
             }
         });
         addCauldronButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 //data correctness check
                 correctionLabelCauldron.setText("Correct");
                 correctionLabelCauldron.setForeground(Color.GREEN);
@@ -468,6 +496,7 @@ public class MainForm {
                     cauldron.setWaterTemperature(Integer.parseInt(textFieldWaterTemperature.getText()));
 
                     if (createCauldronWorker != null) {
+                        log.error("IllegalStateException: Operation 'Create cauldron' is in progress");
                         throw new IllegalStateException("Operation is in progress");
                     }
                     addCauldronButton.setEnabled(false);
@@ -475,9 +504,10 @@ public class MainForm {
                     createCauldronWorker = new CreateCauldronWorker(cauldron);
                     createCauldronWorker.execute();
 
-                }catch(NumberFormatException ex){
+                } catch(NumberFormatException ex){
                     correctionLabelCauldron.setText("Cant parse given input: " + ex.getMessage());
                     correctionLabelCauldron.setForeground(Color.RED);
+                    log.error("Can't parse given input: " + ex.getMessage());
                 }
             }
         });
@@ -488,6 +518,7 @@ public class MainForm {
                 if(selectedRow != -1) {
                     try {
                         if (deleteCauldronWorker != null) {
+                            log.error("IllegalStateException: Operation 'Delete cauldron' is in progress");
                             throw new IllegalStateException("Operation is in progress");
                         }
                         deleteCauldronButton.setEnabled(false);
@@ -500,6 +531,7 @@ public class MainForm {
                     } catch (ServiceFailureException ex) {
                         correctionLabelCauldron.setText("Cannot delete cauldron");
                         correctionLabelCauldron.setForeground(Color.RED);
+                        log.error(ex.getMessage());
                     }
                 }
             }
@@ -511,6 +543,7 @@ public class MainForm {
                 if(selectedRow != -1) {
                     try {
                         if (releaseSinnerWorker != null) {
+                            log.error("IllegalStateException: Operation 'Release sinner' is in progress");
                             throw new IllegalStateException("Operation is in progress");
                         }
                         releaseSinnerButton.setEnabled(false);
@@ -520,11 +553,13 @@ public class MainForm {
                         releaseSinnerWorker.execute();
 
                     } catch (ServiceFailureException ex) {
-                        correctionLabelCauldron.setText("Cannot delete relation");
+                        correctionLabelCauldron.setText("Cannot delete sinner");
                         correctionLabelCauldron.setForeground(Color.RED);
+                        log.error(ex.getMessage());
                     } catch (IllegalArgumentException ex) {
                         correctionLabelCauldron.setText(ex.getMessage());
                         correctionLabelCauldron.setForeground(Color.RED);
+                        log.error(ex.getMessage());
                     }
                 }
             }
@@ -536,6 +571,7 @@ public class MainForm {
                 if(selectedRow != -1) {
                     try {
                         if (deleteSinnerWorker != null) {
+                            log.error("IllegalStateException: Operation 'Delete sinner' is in progress");
                             throw new IllegalStateException("Operation is in progress");
                         }
                         deleteSinnerButton.setEnabled(false);
@@ -547,6 +583,7 @@ public class MainForm {
                     } catch (ServiceFailureException ex) {
                         correctionLabelCauldron.setText("Cannot delete sinner");
                         correctionLabelCauldron.setForeground(Color.RED);
+                        log.error(ex.getMessage());
                     }
                 }
             }
@@ -559,22 +596,25 @@ public class MainForm {
                 if (selectedCauldronRow == -1) {
                     correctionLabelCauldron.setText("Please, select cauldron.");
                     correctionLabelCauldron.setForeground(Color.RED);
+                    return;
                 }
 
                 int selectedSinnerRow = sinnerCauldronTable.getSelectedRow();
                 if (selectedSinnerRow == -1) {
                     correctionLabelCauldron.setText("Please, select sinner");
                     correctionLabelCauldron.setForeground(Color.RED);
+                    return;
                 }
 
                 try {
+                    long sinnerId = (long) sinnerCauldronTable.getValueAt(selectedSinnerRow, 0);
+                    long cauldronId = (long) cauldronsTable.getValueAt(selectedCauldronRow, 0);
+
                     if (boilSinnerWorker != null) {
+                        log.error("IllegalStateException: Operation 'Boil sinner in cauldron' is in progress");
                         throw new IllegalStateException("Operation is in progress");
                     }
                     boilSinnerButton.setEnabled(false);
-
-                    long sinnerId = (long) sinnerCauldronTable.getValueAt(selectedSinnerRow, 0);
-                    long cauldronId = (long) cauldronsTable.getValueAt(selectedCauldronRow, 0);
 
                     boilSinnerWorker = new BoilSinnerWorker(sinnerId, cauldronId);
                     boilSinnerWorker.execute();
@@ -582,6 +622,7 @@ public class MainForm {
                 } catch (ServiceFailureException | IllegalEntityException ex ) {
                     correctionLabelCauldron.setText("Cannot boil sinner in cauldron: " + ex.getMessage());
                     correctionLabelCauldron.setForeground(Color.RED);
+                    log.error(ex.getMessage());
                 }
             }
         });
@@ -600,6 +641,7 @@ public class MainForm {
                 } catch (IllegalArgumentException ex) {
                     correctionLabelSinner.setText(ex.getMessage());
                     correctionLabelSinner.setForeground(Color.RED);
+                    log.error(ex.getMessage());
                 }
                 refreshSinnerCauldronTable();
             }
@@ -619,6 +661,7 @@ public class MainForm {
                 } catch (IllegalArgumentException ex) {
                     correctionLabelCauldron.setText(ex.getMessage());
                     correctionLabelSinner.setForeground(Color.RED);
+                    log.error(ex.getMessage());
                 }
             }
         });

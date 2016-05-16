@@ -4,6 +4,8 @@ import cz.muni.fi.pv168.Cauldron;
 import cz.muni.fi.pv168.CauldronManager;
 import cz.muni.fi.pv168.exceptions.EntityNotFoundException;
 import cz.muni.fi.pv168.exceptions.ServiceFailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -16,6 +18,7 @@ import java.util.List;
  */
 public class CauldronManagerImpl implements CauldronManager {
 
+    final static Logger log = LoggerFactory.getLogger(CauldronManagerImpl.class);
     private DataSource dataSource;
 
     public CauldronManagerImpl() {
@@ -53,6 +56,8 @@ public class CauldronManagerImpl implements CauldronManager {
 
             ResultSet keyRS = st.getGeneratedKeys();
             cauldron.setId(getKey(keyRS, cauldron));
+            log.debug("Created new cauldron: id = {}, capacity = {}, temperature = {}, hell floor = {}",
+                    cauldron.getId(), cauldron.getCapacity(), cauldron.getWaterTemperature(), cauldron.getHellFloor());
 
         } catch (SQLException ex) {
             throw new ServiceFailureException("Error when inserting cauldron " + cauldron, ex);
@@ -82,6 +87,9 @@ public class CauldronManagerImpl implements CauldronManager {
             } else if (count != 1) {
                 throw new ServiceFailureException("Invalid updated rows count detected (one row should be updated): " + count);
             }
+            log.debug("Updated cauldron: id = {}, capacity = {}, temperature = {}, hell floor = {}",
+                    cauldron.getId(), cauldron.getCapacity(), cauldron.getWaterTemperature(), cauldron.getHellFloor());
+
         } catch (SQLException ex) {
             throw new ServiceFailureException("Error when updating cauldron " + cauldron, ex);
         }
@@ -107,6 +115,9 @@ public class CauldronManagerImpl implements CauldronManager {
             } else if (count != 1) {
                 throw new ServiceFailureException("Invalid deleted rows count detected (one row should be updated): " + count);
             }
+
+            log.debug("Deleted cauldron with id = {}", cauldron.getId());
+
         } catch (SQLException ex) {
             throw new ServiceFailureException(
                     "Error when updating cauldron " + cauldron, ex);
@@ -133,12 +144,14 @@ public class CauldronManagerImpl implements CauldronManager {
                         throw new ServiceFailureException("Internal error: More entities with the same id found "
                                 + "(source id: " + id + ", found " + cauldron + " and " + resultSetToCauldron(rs));
                     }
+                    log.debug("Cauldron with id = {} found in database", id);
                     return cauldron;
 
                 } else {
                     return null;
                 }
             }
+
         } catch (SQLException ex) {
             throw new ServiceFailureException("Error when retrieving grave with id " + id, ex);
         }
