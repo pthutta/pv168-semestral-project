@@ -2,6 +2,8 @@ package cz.muni.fi.pv168.gui;
 
 import cz.muni.fi.pv168.Sinner;
 import org.apache.derby.client.am.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.LocalDate;
@@ -13,6 +15,7 @@ import java.util.List;
  */
 public class SinnerTableModel extends AbstractTableModel {
 
+    final static Logger log = LoggerFactory.getLogger(SinnerTableModel.class);
     private List<Sinner> sinners = new ArrayList<Sinner>();
 
     @Override
@@ -42,6 +45,7 @@ public class SinnerTableModel extends AbstractTableModel {
             case 5:
                 return sinner.isSignedContractWithDevil();
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }
@@ -62,6 +66,7 @@ public class SinnerTableModel extends AbstractTableModel {
             case 5:
                 return "Signed contract with devil";
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }
@@ -89,6 +94,7 @@ public class SinnerTableModel extends AbstractTableModel {
                 sinner.setSignedContractWithDevil((boolean)aValue);
                 break;
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
         fireTableCellUpdated(rowIndex, columnIndex);
@@ -106,6 +112,7 @@ public class SinnerTableModel extends AbstractTableModel {
             case 5:
                 return true;
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }
@@ -124,6 +131,7 @@ public class SinnerTableModel extends AbstractTableModel {
             case 5:
                 return Boolean.class;
             default:
+                log.error("Invalid column index");
                 throw new IllegalArgumentException("columnIndex");
         }
     }

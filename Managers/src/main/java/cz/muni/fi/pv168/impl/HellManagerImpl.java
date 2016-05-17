@@ -6,6 +6,8 @@ import cz.muni.fi.pv168.Sinner;
 import cz.muni.fi.pv168.common.DBUtils;
 import cz.muni.fi.pv168.exceptions.IllegalEntityException;
 import cz.muni.fi.pv168.exceptions.ServiceFailureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -21,6 +23,7 @@ import java.util.List;
  */
 public class HellManagerImpl implements HellManager {
 
+    final static Logger log = LoggerFactory.getLogger(HellManagerImpl.class);
     private DataSource dataSource;
 
     public HellManagerImpl() {
@@ -88,6 +91,7 @@ public class HellManagerImpl implements HellManager {
                         throw new ServiceFailureException("Error, multiple cauldrons with the same sinner found "
                                 + "(source sinner: " + sinner + ", found " + cauldron + " and " + resultSetToCauldron(rs));
                     }
+                    log.debug("Found cauldron id = {} with sinner id = {}", cauldron.getId(), sinner.getId());
                     return cauldron;
 
                 } else {
@@ -128,6 +132,8 @@ public class HellManagerImpl implements HellManager {
                 throw new ServiceFailureException("Updated invalid number of rows: " + changed);
             }
 
+            log.debug("Sinner id = {} is boiling in cauldron id = {}", sinner.getId(), cauldron.getId());
+
         } catch (SQLException e) {
             throw new ServiceFailureException("Error updating data in database", e);
         }
@@ -141,9 +147,6 @@ public class HellManagerImpl implements HellManager {
         if (sinner.getId() == null) {
             throw new IllegalArgumentException("Sinner id is null");
         }
-        if (sinner.isSignedContractWithDevil()) {
-            throw new IllegalArgumentException("Contract was signed, cannot release sinner from cauldron");
-        }
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement st = connection.prepareStatement("UPDATE sinner SET cauldronId = NULL WHERE id = ?")) {
@@ -153,6 +156,7 @@ public class HellManagerImpl implements HellManager {
             if (changed != 1) {
                 throw new ServiceFailureException("Updated invalid number of rows: " + changed);
             }
+            log.debug("Sinner id = {} released from cauldron", sinner.getId());
 
         } catch (SQLException e) {
             throw new ServiceFailureException("Error updating data in database", e);
