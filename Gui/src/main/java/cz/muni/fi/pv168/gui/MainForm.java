@@ -21,7 +21,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.text.DateFormat;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -281,9 +283,9 @@ public class MainForm {
 
             } catch (InterruptedException ex) {
                 log.error(ex.getMessage());
-                throw new RuntimeException("Operation interrupted (this should never happen)",ex);
-            } catch (ExecutionException ex) {
-                correctionLabelCauldron.setText(ex.getCause() + "\n");
+                throw new RuntimeException("Operation interrupted (this should never happen)", ex);
+            }catch (ExecutionException ex) {
+                correctionLabelCauldron.setText(texts.getString("pleaseInputCapacityHigherThan0Key"));
                 correctionLabelCauldron.setForeground(Color.RED);
                 log.error(ex.getMessage());
             }
@@ -353,7 +355,7 @@ public class MainForm {
                 model.updateRelation(relation);
 
             } catch (ExecutionException ex) {
-                correctionLabelCauldron.setText(ex.getCause() + "\n");
+                correctionLabelCauldron.setText(texts.getString("cannotBoilSinnerInCauldronKey"));
                 correctionLabelCauldron.setForeground(Color.RED);
                 log.error(ex.getMessage());
             } catch (InterruptedException ex) {
@@ -474,15 +476,34 @@ public class MainForm {
                     correctionLabelSinner.setForeground(Color.RED);
                     return;
                 }
+                if(textFieldFirstName.getText().length() > 19 | textFieldLastName.getText().length() > 19){
+                    correctionLabelSinner.setText(texts.getString("pleaseInputNamesShorterThan19CharactersKey"));
+                    correctionLabelSinner.setForeground(Color.RED);
+                    return;
+                }
                 if(textFieldSin.getText().isEmpty()){
                     correctionLabelSinner.setText(texts.getString("pleaseInputSinKey"));
                     correctionLabelSinner.setForeground(Color.RED);
                     return;
                 }
+
                 if (!signedContractWithDevilCheckBox.isSelected() && (releaseDate.getDate() == null)){
                     correctionLabelSinner.setText(texts.getString("pleaseInputSignedContractOrReleaseDateKey"));
                     correctionLabelSinner.setForeground(Color.RED);
                     return;
+                }
+
+                if (releaseDate.getDate() != null) {
+                    TimeZone tz = TimeZone.getDefault();
+                    LocalDate today = LocalDate.now(tz.toZoneId());
+
+                    Instant instant = today.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+                    Date res = Date.from(instant);
+                    if (releaseDate.getDate().before(res)) {
+                        correctionLabelSinner.setText(texts.getString("releaseDateCannotBeInThePastKey"));
+                        correctionLabelSinner.setForeground(Color.RED);
+                        return;
+                    }
                 }
 
                 //add Sinner
@@ -498,17 +519,16 @@ public class MainForm {
 
                     if(createSinnerWorker != null) {
                         log.error("IllegalStateException: Operation 'Create sinner' is in progress");
-                        throw new IllegalStateException("Operation is in progress");
+                        throw new IllegalStateException(texts.getString("operationIsInProgressKey"));
                     }
                     addSinnerButton.setEnabled(false);
 
                     createSinnerWorker = new CreateSinnerWorker(sinner);
                     createSinnerWorker.execute();
 
-                } catch(NumberFormatException ex){
-                    correctionLabelCauldron.setText(texts.getString("cantParseGivenInputKey") + ex.getMessage());
-                    correctionLabelCauldron.setForeground(Color.RED);
-                    log.error("Can't parse given input: " + ex.getMessage());
+                } catch (IllegalArgumentException ex){
+                    correctionLabelSinner.setText(texts.getString("releaseDateCannotBeInThePastKey"));
+                    correctionLabelSinner.setForeground(Color.RED);
                 }
             }
         });
@@ -521,6 +541,11 @@ public class MainForm {
 
                 if(textFieldCapacity.getText().isEmpty()){
                     correctionLabelCauldron.setText(texts.getString("pleaseInputCapacityKey"));
+                    correctionLabelCauldron.setForeground(Color.RED);
+                    return;
+                }
+                if(Integer.parseInt(textFieldCapacity.getText()) < 1) {
+                    texts.getString("pleaseInputCapacityHigherThan0Key");
                     correctionLabelCauldron.setForeground(Color.RED);
                     return;
                 }
@@ -544,7 +569,7 @@ public class MainForm {
 
                     if (createCauldronWorker != null) {
                         log.error("IllegalStateException: Operation 'Create cauldron' is in progress");
-                        throw new IllegalStateException("Operation is in progress");
+                        throw new IllegalStateException(texts.getString("operationIsInProgressKey"));
                     }
                     addCauldronButton.setEnabled(false);
 
@@ -552,7 +577,7 @@ public class MainForm {
                     createCauldronWorker.execute();
 
                 } catch(NumberFormatException ex){
-                    correctionLabelCauldron.setText(texts.getString("cantParseGivenInputKey") + ex.getMessage());
+                    correctionLabelCauldron.setText(texts.getString("cantParseGivenInputKey") + ex.getMessage().substring(17));
                     correctionLabelCauldron.setForeground(Color.RED);
                     log.error("Can't parse given input: " + ex.getMessage());
                 }
@@ -566,7 +591,7 @@ public class MainForm {
                     try {
                         if (deleteCauldronWorker != null) {
                             log.error("IllegalStateException: Operation 'Delete cauldron' is in progress");
-                            throw new IllegalStateException("Operation is in progress");
+                            throw new IllegalStateException(texts.getString("operationIsInProgressKey"));
                         }
                         deleteCauldronButton.setEnabled(false);
 
@@ -591,7 +616,7 @@ public class MainForm {
                     try {
                         if (releaseSinnerWorker != null) {
                             log.error("IllegalStateException: Operation 'Release sinner' is in progress");
-                            throw new IllegalStateException("Operation is in progress");
+                            throw new IllegalStateException(texts.getString("operationIsInProgressKey"));
                         }
                         releaseSinnerButton.setEnabled(false);
 
@@ -619,7 +644,7 @@ public class MainForm {
                     try {
                         if (deleteSinnerWorker != null) {
                             log.error("IllegalStateException: Operation 'Delete sinner' is in progress");
-                            throw new IllegalStateException("Operation is in progress");
+                            throw new IllegalStateException(texts.getString("operationIsInProgressKey"));
                         }
                         deleteSinnerButton.setEnabled(false);
 
@@ -659,14 +684,14 @@ public class MainForm {
 
                     if (boilSinnerWorker != null) {
                         log.error("IllegalStateException: Operation 'Boil sinner in cauldron' is in progress");
-                        throw new IllegalStateException("Operation is in progress");
+                        throw new IllegalStateException(texts.getString("operationIsInProgressKey"));
                     }
                     boilSinnerButton.setEnabled(false);
 
                     boilSinnerWorker = new BoilSinnerWorker(sinnerId, cauldronId);
                     boilSinnerWorker.execute();
 
-                } catch (ServiceFailureException | IllegalEntityException ex ) {
+                } catch (IllegalEntityException | ServiceFailureException ex ) {
                     correctionLabelCauldron.setText(texts.getString("cannotBoilSinnerInCauldronKey") + ex.getMessage());
                     correctionLabelCauldron.setForeground(Color.RED);
                     log.error(ex.getMessage());
