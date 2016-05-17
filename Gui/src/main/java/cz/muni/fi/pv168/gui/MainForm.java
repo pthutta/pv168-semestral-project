@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -33,6 +34,8 @@ import java.util.concurrent.ExecutionException;
  */
 public class MainForm {
     final static Logger log = LoggerFactory.getLogger(MainForm.class);
+    private static Locale locale = Locale.getDefault();
+    private static ResourceBundle texts = ResourceBundle.getBundle("Texts", locale);
 
     private CauldronManagerImpl cauldronManager;
     private HellManagerImpl hellManager;
@@ -63,8 +66,13 @@ public class MainForm {
     private JPanel MainJPanel;
     private JLabel correctionLabelSinner;
     private JLabel correctionLabelCauldron;
-    private JLabel infoLabelSinner;
-    private JLabel infoLabelCauldron;
+    private JLabel firstNameLabel;
+    private JLabel lastNameLabel;
+    private JLabel sinLabel;
+    private JLabel releaseDateLabel;
+    private JLabel capacityLabel;
+    private JLabel waterTemperatureLabel;
+    private JLabel hellFloorLabel;
 
     //swing workers
     private CreateSinnerWorker createSinnerWorker;
@@ -394,6 +402,45 @@ public class MainForm {
     }
 
     public MainForm() {
+
+        //general + sinners/cauldrons table
+        exitButton.setText(texts.getString("exitKey"));
+        sinnerCauldronTable.getColumnModel().getColumn(0).setHeaderValue(texts.getString("sinnerIdKey"));
+        sinnerCauldronTable.getColumnModel().getColumn(1).setHeaderValue(texts.getString("sinnerNameKey"));
+        sinnerCauldronTable.getColumnModel().getColumn(2).setHeaderValue(texts.getString("cauldronIdKey"));
+        releaseSinnerButton.setText(texts.getString("releaseSinnerKey"));
+        boilSinnerButton.setText(texts.getString("boilSinnerKey"));
+        tabbedPane1.setTitleAt(0, texts.getString("sinnersKey"));
+        tabbedPane1.setTitleAt(1, texts.getString("cauldronsKey"));
+        tabbedPane1.setTitleAt(2, texts.getString("aboutKey"));
+
+        //sinners table
+        sinnersTable.getColumnModel().getColumn(0).setHeaderValue(texts.getString("sinnerIdKey"));
+        sinnersTable.getColumnModel().getColumn(1).setHeaderValue(texts.getString("firstNameKey"));
+        sinnersTable.getColumnModel().getColumn(2).setHeaderValue(texts.getString("lastNameKey"));
+        sinnersTable.getColumnModel().getColumn(3).setHeaderValue(texts.getString("sinKey"));
+        sinnersTable.getColumnModel().getColumn(4).setHeaderValue(texts.getString("releaseDateKey"));
+        sinnersTable.getColumnModel().getColumn(5).setHeaderValue(texts.getString("signedContractWithDevilKey"));
+        addSinnerButton.setText(texts.getString("addSinnerKey"));
+        deleteSinnerButton.setText(texts.getString("deleteKey"));
+        firstNameLabel.setText(texts.getString("firstNameKey"));
+        sinLabel.setText(texts.getString("sinKey"));
+        lastNameLabel.setText(texts.getString("lastNameKey"));
+        releaseDateLabel.setText(texts.getString("releaseDateKey"));
+        signedContractWithDevilCheckBox.setText(texts.getString("signedContractWithDevilKey"));
+
+        //cauldrons table
+        cauldronsTable.getColumnModel().getColumn(0).setHeaderValue(texts.getString("cauldronIdKey"));
+        cauldronsTable.getColumnModel().getColumn(1).setHeaderValue(texts.getString("capacityKey"));
+        cauldronsTable.getColumnModel().getColumn(2).setHeaderValue(texts.getString("waterTemperatureKey"));
+        cauldronsTable.getColumnModel().getColumn(3).setHeaderValue(texts.getString("hellFloorKey"));
+        deleteCauldronButton.setText(texts.getString("deleteKey"));
+        capacityLabel.setText(texts.getString("capacityKey"));
+        waterTemperatureLabel.setText(texts.getString("waterTemperatureKey"));
+        hellFloorLabel.setText(texts.getString("hellFloorKey"));
+        addCauldronButton.setText(texts.getString("addCauldronKey"));
+
+
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -414,26 +461,26 @@ public class MainForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //data correctness check
-                correctionLabelSinner.setText("Correct");
+                correctionLabelSinner.setText(texts.getString("correctKey"));
                 correctionLabelSinner.setForeground(Color.GREEN);
 
                 if(textFieldFirstName.getText().isEmpty()){
-                    correctionLabelSinner.setText("Please input first name");
+                    correctionLabelSinner.setText(texts.getString("pleaseInputFirstNameKey"));
                     correctionLabelSinner.setForeground(Color.RED);
                     return;
                 }
                 if(textFieldLastName.getText().isEmpty()){
-                    correctionLabelSinner.setText("Please input last name");
+                    correctionLabelSinner.setText(texts.getString("pleaseInputLastNameKey"));
                     correctionLabelSinner.setForeground(Color.RED);
                     return;
                 }
                 if(textFieldSin.getText().isEmpty()){
-                    correctionLabelSinner.setText("Please input sin");
+                    correctionLabelSinner.setText(texts.getString("pleaseInputSinKey"));
                     correctionLabelSinner.setForeground(Color.RED);
                     return;
                 }
                 if (!signedContractWithDevilCheckBox.isSelected() && (releaseDate.getDate() == null)){
-                    correctionLabelSinner.setText("Please input signed contract or release date");
+                    correctionLabelSinner.setText(texts.getString("pleaseInputSignedContractOrReleaseDateKey"));
                     correctionLabelSinner.setForeground(Color.RED);
                     return;
                 }
@@ -459,7 +506,7 @@ public class MainForm {
                     createSinnerWorker.execute();
 
                 } catch(NumberFormatException ex){
-                    correctionLabelCauldron.setText("Can't parse given input: " + ex.getMessage());
+                    correctionLabelCauldron.setText(texts.getString("cantParseGivenInputKey") + ex.getMessage());
                     correctionLabelCauldron.setForeground(Color.RED);
                     log.error("Can't parse given input: " + ex.getMessage());
                 }
@@ -469,21 +516,21 @@ public class MainForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //data correctness check
-                correctionLabelCauldron.setText("Correct");
+                correctionLabelCauldron.setText(texts.getString("correctKey"));
                 correctionLabelCauldron.setForeground(Color.GREEN);
 
                 if(textFieldCapacity.getText().isEmpty()){
-                    correctionLabelCauldron.setText("Please input capacity");
+                    correctionLabelCauldron.setText(texts.getString("pleaseInputCapacityKey"));
                     correctionLabelCauldron.setForeground(Color.RED);
                     return;
                 }
                 if(textFieldWaterTemperature.getText().isEmpty()){
-                    correctionLabelCauldron.setText("Please input water temperature");
+                    correctionLabelCauldron.setText(texts.getString("pleaseInputWaterTemperatureKey"));
                     correctionLabelCauldron.setForeground(Color.RED);
                     return;
                 }
                 if(textFieldHellFloor.getText().isEmpty()){
-                    correctionLabelCauldron.setText("Please input hell floor");
+                    correctionLabelCauldron.setText(texts.getString("pleaseInputHellFloorKey"));
                     correctionLabelCauldron.setForeground(Color.RED);
                     return;
                 }
@@ -505,7 +552,7 @@ public class MainForm {
                     createCauldronWorker.execute();
 
                 } catch(NumberFormatException ex){
-                    correctionLabelCauldron.setText("Cant parse given input: " + ex.getMessage());
+                    correctionLabelCauldron.setText(texts.getString("cantParseGivenInputKey") + ex.getMessage());
                     correctionLabelCauldron.setForeground(Color.RED);
                     log.error("Can't parse given input: " + ex.getMessage());
                 }
@@ -529,7 +576,7 @@ public class MainForm {
                         deleteCauldronWorker.execute();
 
                     } catch (ServiceFailureException ex) {
-                        correctionLabelCauldron.setText("Cannot delete cauldron");
+                        correctionLabelCauldron.setText(texts.getString("cannotDeleteCauldronKey"));
                         correctionLabelCauldron.setForeground(Color.RED);
                         log.error(ex.getMessage());
                     }
@@ -553,7 +600,7 @@ public class MainForm {
                         releaseSinnerWorker.execute();
 
                     } catch (ServiceFailureException ex) {
-                        correctionLabelCauldron.setText("Cannot delete sinner");
+                        correctionLabelCauldron.setText(texts.getString("cannotDeleteSinnerKey"));
                         correctionLabelCauldron.setForeground(Color.RED);
                         log.error(ex.getMessage());
                     } catch (IllegalArgumentException ex) {
@@ -581,7 +628,7 @@ public class MainForm {
                         deleteSinnerWorker.execute();
 
                     } catch (ServiceFailureException ex) {
-                        correctionLabelCauldron.setText("Cannot delete sinner");
+                        correctionLabelCauldron.setText(texts.getString("cannotDeleteSinnerKey"));
                         correctionLabelCauldron.setForeground(Color.RED);
                         log.error(ex.getMessage());
                     }
@@ -594,14 +641,14 @@ public class MainForm {
             public void actionPerformed(ActionEvent e) {
                 int selectedCauldronRow = cauldronsTable.getSelectedRow();
                 if (selectedCauldronRow == -1) {
-                    correctionLabelCauldron.setText("Please, select cauldron.");
+                    correctionLabelCauldron.setText(texts.getString("pleaseSelectCauldronKey"));
                     correctionLabelCauldron.setForeground(Color.RED);
                     return;
                 }
 
                 int selectedSinnerRow = sinnerCauldronTable.getSelectedRow();
                 if (selectedSinnerRow == -1) {
-                    correctionLabelCauldron.setText("Please, select sinner");
+                    correctionLabelCauldron.setText(texts.getString("pleaseSelectSinnerKey"));
                     correctionLabelCauldron.setForeground(Color.RED);
                     return;
                 }
@@ -620,7 +667,7 @@ public class MainForm {
                     boilSinnerWorker.execute();
 
                 } catch (ServiceFailureException | IllegalEntityException ex ) {
-                    correctionLabelCauldron.setText("Cannot boil sinner in cauldron: " + ex.getMessage());
+                    correctionLabelCauldron.setText(texts.getString("cannotBoilSinnerInCauldronKey") + ex.getMessage());
                     correctionLabelCauldron.setForeground(Color.RED);
                     log.error(ex.getMessage());
                 }
@@ -672,7 +719,7 @@ public class MainForm {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                JFrame frame = new JFrame("Hell Manager");
+                JFrame frame = new JFrame(texts.getString("hellManagerKey"));
                 frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 frame.setContentPane(new MainForm().MainJPanel);
                 frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
