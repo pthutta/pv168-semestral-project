@@ -1,0 +1,7 @@
+<application>
+  <component name="XQueryDataSourcesSettings">
+    <list>
+      <data-source-configuration name="Saxon" type="SAXON" />
+    </list>
+  </component>
+</application>
